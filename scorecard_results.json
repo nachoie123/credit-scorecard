@@ -1,0 +1,3442 @@
+{
+ "meta": {
+  "n_total": 1000,
+  "n_train": 700,
+  "n_test": 300,
+  "bad_rate": 0.3,
+  "pdo": 20.0,
+  "base_score": 600.0,
+  "base_odds": 50.0,
+  "factor": 28.8539,
+  "offset": 487.1229,
+  "seed": 42,
+  "cost_false_good": 5.0,
+  "cost_false_bad": 1.0
+ },
+ "iv_ranking": [
+  {
+   "column": "checking_status",
+   "pretty": "Status of checking account",
+   "iv": 0.6729,
+   "strength": "suspiciously strong",
+   "n_bins": 4,
+   "in_model": true
+  },
+  {
+   "column": "credit_history",
+   "pretty": "Credit history",
+   "iv": 0.3248,
+   "strength": "strong",
+   "n_bins": 4,
+   "in_model": true
+  },
+  {
+   "column": "duration_months",
+   "pretty": "Duration of credit (months)",
+   "iv": 0.2843,
+   "strength": "medium",
+   "n_bins": 5,
+   "in_model": true
+  },
+  {
+   "column": "purpose",
+   "pretty": "Purpose of the loan",
+   "iv": 0.1833,
+   "strength": "medium",
+   "n_bins": 6,
+   "in_model": true
+  },
+  {
+   "column": "credit_amount",
+   "pretty": "Credit amount (DM)",
+   "iv": 0.1717,
+   "strength": "medium",
+   "n_bins": 5,
+   "in_model": true
+  },
+  {
+   "column": "savings",
+   "pretty": "Savings account / bonds",
+   "iv": 0.1363,
+   "strength": "medium",
+   "n_bins": 4,
+   "in_model": true
+  },
+  {
+   "column": "property",
+   "pretty": "Property owned",
+   "iv": 0.0953,
+   "strength": "weak",
+   "n_bins": 4,
+   "in_model": false
+  },
+  {
+   "column": "other_installment_plans",
+   "pretty": "Other instalment plans",
+   "iv": 0.0895,
+   "strength": "weak",
+   "n_bins": 2,
+   "in_model": true
+  },
+  {
+   "column": "age_years",
+   "pretty": "Age (years)",
+   "iv": 0.0875,
+   "strength": "weak",
+   "n_bins": 4,
+   "in_model": false
+  },
+  {
+   "column": "employment_since",
+   "pretty": "Time in present employment",
+   "iv": 0.0786,
+   "strength": "weak",
+   "n_bins": 5,
+   "in_model": true
+  },
+  {
+   "column": "housing",
+   "pretty": "Housing",
+   "iv": 0.0442,
+   "strength": "weak",
+   "n_bins": 3,
+   "in_model": false
+  },
+  {
+   "column": "installment_rate",
+   "pretty": "Instalment as % of disposable income",
+   "iv": 0.0285,
+   "strength": "weak",
+   "n_bins": 2,
+   "in_model": true
+  },
+  {
+   "column": "telephone",
+   "pretty": "Telephone",
+   "iv": 0.0224,
+   "strength": "weak",
+   "n_bins": 2,
+   "in_model": false
+  },
+  {
+   "column": "other_debtors",
+   "pretty": "Other debtors / guarantors",
+   "iv": 0.0134,
+   "strength": "unpredictive",
+   "n_bins": 2,
+   "in_model": false
+  },
+  {
+   "column": "residence_since",
+   "pretty": "Years at present residence",
+   "iv": 0.0057,
+   "strength": "unpredictive",
+   "n_bins": 3,
+   "in_model": false
+  },
+  {
+   "column": "job",
+   "pretty": "Job",
+   "iv": 0.0032,
+   "strength": "unpredictive",
+   "n_bins": 3,
+   "in_model": false
+  },
+  {
+   "column": "existing_credits",
+   "pretty": "Existing credits at this bank",
+   "iv": 0.0021,
+   "strength": "unpredictive",
+   "n_bins": 2,
+   "in_model": false
+  },
+  {
+   "column": "num_dependents",
+   "pretty": "People liable for maintenance",
+   "iv": 0.0,
+   "strength": "unpredictive",
+   "n_bins": 1,
+   "in_model": false
+  }
+ ],
+ "excluded_protected": {
+  "personal_status_sex": {
+   "pretty": "Personal status and sex",
+   "iv": 0.0428,
+   "strength": "weak"
+  },
+  "foreign_worker": {
+   "pretty": "Foreign worker",
+   "iv": 0.026,
+   "strength": "weak"
+  }
+ },
+ "binning_all": {
+  "checking_status": {
+   "pretty": "Status of checking account",
+   "kind": "categorical",
+   "iv": 0.6729,
+   "strength": "suspiciously strong",
+   "protected": false,
+   "in_model": true,
+   "bins": [
+    {
+     "label": "no checking account",
+     "count": 284,
+     "bads": 35,
+     "bad_rate": 0.1232,
+     "woe": 1.1148,
+     "iv": 0.3807
+    },
+    {
+     "label": ">= 200 DM",
+     "count": 48,
+     "bads": 10,
+     "bad_rate": 0.2083,
+     "woe": 0.4877,
+     "iv": 0.0146
+    },
+    {
+     "label": "0-200 DM",
+     "count": 171,
+     "bads": 65,
+     "bad_rate": 0.3801,
+     "woe": -0.3582,
+     "iv": 0.0334
+    },
+    {
+     "label": "< 0 DM",
+     "count": 197,
+     "bads": 100,
+     "bad_rate": 0.5076,
+     "woe": -0.8778,
+     "iv": 0.2442
+    }
+   ]
+  },
+  "duration_months": {
+   "pretty": "Duration of credit (months)",
+   "kind": "numeric",
+   "iv": 0.2843,
+   "strength": "medium",
+   "protected": false,
+   "in_model": true,
+   "bins": [
+    {
+     "label": "<= 6",
+     "count": 58,
+     "bads": 7,
+     "bad_rate": 0.1207,
+     "woe": 1.1386,
+     "iv": 0.0806
+    },
+    {
+     "label": "(6, 15]",
+     "count": 243,
+     "bads": 55,
+     "bad_rate": 0.2263,
+     "woe": 0.3818,
+     "iv": 0.0465
+    },
+    {
+     "label": "(15, 30]",
+     "count": 270,
+     "bads": 85,
+     "bad_rate": 0.3148,
+     "woe": -0.0696,
+     "iv": 0.0019
+    },
+    {
+     "label": "(30, 36]",
+     "count": 68,
+     "bads": 28,
+     "bad_rate": 0.4118,
+     "woe": -0.4906,
+     "iv": 0.0254
+    },
+    {
+     "label": "> 36",
+     "count": 61,
+     "bads": 35,
+     "bad_rate": 0.5738,
+     "woe": -1.1445,
+     "iv": 0.13
+    }
+   ]
+  },
+  "credit_history": {
+   "pretty": "Credit history",
+   "kind": "categorical",
+   "iv": 0.3248,
+   "strength": "strong",
+   "protected": false,
+   "in_model": true,
+   "bins": [
+    {
+     "label": "critical account / credits elsewhere",
+     "count": 209,
+     "bads": 33,
+     "bad_rate": 0.1579,
+     "woe": 0.8267,
+     "iv": 0.167
+    },
+    {
+     "label": "past delay",
+     "count": 62,
+     "bads": 17,
+     "bad_rate": 0.2742,
+     "woe": 0.1262,
+     "iv": 0.0014
+    },
+    {
+     "label": "existing credits paid duly",
+     "count": 365,
+     "bads": 123,
+     "bad_rate": 0.337,
+     "woe": -0.1705,
+     "iv": 0.0157
+    },
+    {
+     "label": "no credits / all paid / all paid at this bank",
+     "count": 64,
+     "bads": 37,
+     "bad_rate": 0.5781,
+     "woe": -1.1624,
+     "iv": 0.1408
+    }
+   ]
+  },
+  "purpose": {
+   "pretty": "Purpose of the loan",
+   "kind": "categorical",
+   "iv": 0.1833,
+   "strength": "medium",
+   "protected": false,
+   "in_model": true,
+   "bins": [
+    {
+     "label": "retraining / car (used)",
+     "count": 82,
+     "bads": 13,
+     "bad_rate": 0.1585,
+     "woe": 0.8219,
+     "iv": 0.0649
+    },
+    {
+     "label": "radio/TV",
+     "count": 202,
+     "bads": 45,
+     "bad_rate": 0.2228,
+     "woe": 0.4023,
+     "iv": 0.0427
+    },
+    {
+     "label": "furniture",
+     "count": 123,
+     "bads": 38,
+     "bad_rate": 0.3089,
+     "woe": -0.0422,
+     "iv": 0.0003
+    },
+    {
+     "label": "appliances / business",
+     "count": 74,
+     "bads": 26,
+     "bad_rate": 0.3514,
+     "woe": -0.2342,
+     "iv": 0.0061
+    },
+    {
+     "label": "car (new) / other",
+     "count": 170,
+     "bads": 67,
+     "bad_rate": 0.3941,
+     "woe": -0.4173,
+     "iv": 0.0454
+    },
+    {
+     "label": "education / repairs",
+     "count": 49,
+     "bads": 21,
+     "bad_rate": 0.4286,
+     "woe": -0.5596,
+     "iv": 0.024
+    }
+   ]
+  },
+  "credit_amount": {
+   "pretty": "Credit amount (DM)",
+   "kind": "numeric",
+   "iv": 0.1717,
+   "strength": "medium",
+   "protected": false,
+   "in_model": true,
+   "bins": [
+    {
+     "label": "<= 3960.50",
+     "count": 525,
+     "bads": 133,
+     "bad_rate": 0.2533,
+     "woe": 0.2336,
+     "iv": 0.0389
+    },
+    {
+     "label": "(3960.50, 5955.65]",
+     "count": 70,
+     "bads": 27,
+     "bad_rate": 0.3857,
+     "woe": -0.3819,
+     "iv": 0.0156
+    },
+    {
+     "label": "(5955.65, 7166.80]",
+     "count": 35,
+     "bads": 14,
+     "bad_rate": 0.4,
+     "woe": -0.4418,
+     "iv": 0.0105
+    },
+    {
+     "label": "(7166.80, 9162.70]",
+     "count": 35,
+     "bads": 15,
+     "bad_rate": 0.4286,
+     "woe": -0.5596,
+     "iv": 0.0171
+    },
+    {
+     "label": "> 9162.70",
+     "count": 35,
+     "bads": 21,
+     "bad_rate": 0.6,
+     "woe": -1.2528,
+     "iv": 0.0895
+    }
+   ]
+  },
+  "savings": {
+   "pretty": "Savings account / bonds",
+   "kind": "categorical",
+   "iv": 0.1363,
+   "strength": "medium",
+   "protected": false,
+   "in_model": true,
+   "bins": [
+    {
+     "label": ">= 1000 DM / 500-1000 DM",
+     "count": 74,
+     "bads": 13,
+     "bad_rate": 0.1757,
+     "woe": 0.6986,
+     "iv": 0.0437
+    },
+    {
+     "label": "unknown / none",
+     "count": 136,
+     "bads": 27,
+     "bad_rate": 0.1985,
+     "woe": 0.5482,
+     "iv": 0.0515
+    },
+    {
+     "label": "100-500 DM",
+     "count": 78,
+     "bads": 23,
+     "bad_rate": 0.2949,
+     "woe": 0.0245,
+     "iv": 0.0001
+    },
+    {
+     "label": "< 100 DM",
+     "count": 412,
+     "bads": 147,
+     "bad_rate": 0.3568,
+     "woe": -0.258,
+     "iv": 0.0411
+    }
+   ]
+  },
+  "employment_since": {
+   "pretty": "Time in present employment",
+   "kind": "categorical",
+   "iv": 0.0786,
+   "strength": "weak",
+   "protected": false,
+   "in_model": true,
+   "bins": [
+    {
+     "label": "4-7 years",
+     "count": 129,
+     "bads": 29,
+     "bad_rate": 0.2248,
+     "woe": 0.3906,
+     "iv": 0.0258
+    },
+    {
+     "label": ">= 7 years",
+     "count": 178,
+     "bads": 44,
+     "bad_rate": 0.2472,
+     "woe": 0.2664,
+     "iv": 0.017
+    },
+    {
+     "label": "1-4 years",
+     "count": 233,
+     "bads": 77,
+     "bad_rate": 0.3305,
+     "woe": -0.1412,
+     "iv": 0.0068
+    },
+    {
+     "label": "unemployed",
+     "count": 38,
+     "bads": 13,
+     "bad_rate": 0.3421,
+     "woe": -0.1934,
+     "iv": 0.0021
+    },
+    {
+     "label": "< 1 year",
+     "count": 122,
+     "bads": 47,
+     "bad_rate": 0.3852,
+     "woe": -0.38,
+     "iv": 0.0269
+    }
+   ]
+  },
+  "installment_rate": {
+   "pretty": "Instalment as % of disposable income",
+   "kind": "numeric",
+   "iv": 0.0285,
+   "strength": "weak",
+   "protected": false,
+   "in_model": true,
+   "bins": [
+    {
+     "label": "<= 3",
+     "count": 368,
+     "bads": 98,
+     "bad_rate": 0.2663,
+     "woe": 0.1662,
+     "iv": 0.014
+    },
+    {
+     "label": "> 3",
+     "count": 332,
+     "bads": 112,
+     "bad_rate": 0.3373,
+     "woe": -0.1722,
+     "iv": 0.0145
+    }
+   ]
+  },
+  "other_debtors": {
+   "pretty": "Other debtors / guarantors",
+   "kind": "categorical",
+   "iv": 0.0134,
+   "strength": "unpredictive",
+   "protected": false,
+   "in_model": false,
+   "bins": [
+    {
+     "label": "guarantor",
+     "count": 39,
+     "bads": 8,
+     "bad_rate": 0.2051,
+     "woe": 0.5072,
+     "iv": 0.0128
+    },
+    {
+     "label": "none / co-applicant",
+     "count": 661,
+     "bads": 202,
+     "bad_rate": 0.3056,
+     "woe": -0.0265,
+     "iv": 0.0007
+    }
+   ]
+  },
+  "residence_since": {
+   "pretty": "Years at present residence",
+   "kind": "numeric",
+   "iv": 0.0057,
+   "strength": "unpredictive",
+   "protected": false,
+   "in_model": false,
+   "bins": [
+    {
+     "label": "<= 2",
+     "count": 304,
+     "bads": 96,
+     "bad_rate": 0.3158,
+     "woe": -0.0741,
+     "iv": 0.0024
+    },
+    {
+     "label": "(2, 3]",
+     "count": 105,
+     "bads": 32,
+     "bad_rate": 0.3048,
+     "woe": -0.0226,
+     "iv": 0.0001
+    },
+    {
+     "label": "> 3",
+     "count": 291,
+     "bads": 82,
+     "bad_rate": 0.2818,
+     "woe": 0.0883,
+     "iv": 0.0032
+    }
+   ]
+  },
+  "property": {
+   "pretty": "Property owned",
+   "kind": "categorical",
+   "iv": 0.0953,
+   "strength": "weak",
+   "protected": false,
+   "in_model": false,
+   "bins": [
+    {
+     "label": "real estate",
+     "count": 196,
+     "bads": 40,
+     "bad_rate": 0.2041,
+     "woe": 0.5137,
+     "iv": 0.0657
+    },
+    {
+     "label": "savings agreement / life insurance",
+     "count": 160,
+     "bads": 50,
+     "bad_rate": 0.3125,
+     "woe": -0.0588,
+     "iv": 0.0008
+    },
+    {
+     "label": "car or other",
+     "count": 232,
+     "bads": 78,
+     "bad_rate": 0.3362,
+     "woe": -0.1671,
+     "iv": 0.0095
+    },
+    {
+     "label": "unknown / none",
+     "count": 112,
+     "bads": 42,
+     "bad_rate": 0.375,
+     "woe": -0.3365,
+     "iv": 0.0192
+    }
+   ]
+  },
+  "age_years": {
+   "pretty": "Age (years)",
+   "kind": "numeric",
+   "iv": 0.0875,
+   "strength": "weak",
+   "protected": false,
+   "in_model": false,
+   "bins": [
+    {
+     "label": "<= 25",
+     "count": 131,
+     "bads": 55,
+     "bad_rate": 0.4198,
+     "woe": -0.5239,
+     "iv": 0.056
+    },
+    {
+     "label": "(25, 26]",
+     "count": 42,
+     "bads": 13,
+     "bad_rate": 0.3095,
+     "woe": -0.045,
+     "iv": 0.0001
+    },
+    {
+     "label": "(26, 33]",
+     "count": 185,
+     "bads": 57,
+     "bad_rate": 0.3081,
+     "woe": -0.0383,
+     "iv": 0.0004
+    },
+    {
+     "label": "> 33",
+     "count": 342,
+     "bads": 85,
+     "bad_rate": 0.2485,
+     "woe": 0.2591,
+     "iv": 0.031
+    }
+   ]
+  },
+  "other_installment_plans": {
+   "pretty": "Other instalment plans",
+   "kind": "categorical",
+   "iv": 0.0895,
+   "strength": "weak",
+   "protected": false,
+   "in_model": true,
+   "bins": [
+    {
+     "label": "none",
+     "count": 572,
+     "bads": 154,
+     "bad_rate": 0.2692,
+     "woe": 0.1512,
+     "iv": 0.0181
+    },
+    {
+     "label": "stores / bank",
+     "count": 128,
+     "bads": 56,
+     "bad_rate": 0.4375,
+     "woe": -0.596,
+     "iv": 0.0714
+    }
+   ]
+  },
+  "housing": {
+   "pretty": "Housing",
+   "kind": "categorical",
+   "iv": 0.0442,
+   "strength": "weak",
+   "protected": false,
+   "in_model": false,
+   "bins": [
+    {
+     "label": "own",
+     "count": 491,
+     "bads": 133,
+     "bad_rate": 0.2709,
+     "woe": 0.1429,
+     "iv": 0.0139
+    },
+    {
+     "label": "for free",
+     "count": 78,
+     "bads": 28,
+     "bad_rate": 0.359,
+     "woe": -0.2675,
+     "iv": 0.0084
+    },
+    {
+     "label": "rent",
+     "count": 131,
+     "bads": 49,
+     "bad_rate": 0.374,
+     "woe": -0.3324,
+     "iv": 0.0219
+    }
+   ]
+  },
+  "existing_credits": {
+   "pretty": "Existing credits at this bank",
+   "kind": "numeric",
+   "iv": 0.0021,
+   "strength": "unpredictive",
+   "protected": false,
+   "in_model": false,
+   "bins": [
+    {
+     "label": "<= 2",
+     "count": 676,
+     "bads": 204,
+     "bad_rate": 0.3018,
+     "woe": -0.0084,
+     "iv": 0.0001
+    },
+    {
+     "label": "> 2",
+     "count": 24,
+     "bads": 6,
+     "bad_rate": 0.25,
+     "woe": 0.2513,
+     "iv": 0.0021
+    }
+   ]
+  },
+  "job": {
+   "pretty": "Job",
+   "kind": "categorical",
+   "iv": 0.0032,
+   "strength": "unpredictive",
+   "protected": false,
+   "in_model": false,
+   "bins": [
+    {
+     "label": "unskilled resident",
+     "count": 144,
+     "bads": 40,
+     "bad_rate": 0.2778,
+     "woe": 0.1082,
+     "iv": 0.0024
+    },
+    {
+     "label": "skilled employee",
+     "count": 438,
+     "bads": 133,
+     "bad_rate": 0.3037,
+     "woe": -0.0173,
+     "iv": 0.0002
+    },
+    {
+     "label": "management / self-employed / unemployed / unskilled non-resident",
+     "count": 118,
+     "bads": 37,
+     "bad_rate": 0.3136,
+     "woe": -0.0638,
+     "iv": 0.0007
+    }
+   ]
+  },
+  "num_dependents": {
+   "pretty": "People liable for maintenance",
+   "kind": "numeric",
+   "iv": 0.0,
+   "strength": "unpredictive",
+   "protected": false,
+   "in_model": false,
+   "bins": [
+    {
+     "label": "<= inf",
+     "count": 700,
+     "bads": 210,
+     "bad_rate": 0.3,
+     "woe": 0.0,
+     "iv": 0.0
+    }
+   ]
+  },
+  "telephone": {
+   "pretty": "Telephone",
+   "kind": "categorical",
+   "iv": 0.0224,
+   "strength": "weak",
+   "protected": false,
+   "in_model": false,
+   "bins": [
+    {
+     "label": "registered",
+     "count": 279,
+     "bads": 73,
+     "bad_rate": 0.2616,
+     "woe": 0.1901,
+     "iv": 0.0138
+    },
+    {
+     "label": "none",
+     "count": 421,
+     "bads": 137,
+     "bad_rate": 0.3254,
+     "woe": -0.1183,
+     "iv": 0.0086
+    }
+   ]
+  },
+  "personal_status_sex": {
+   "pretty": "Personal status and sex",
+   "kind": "categorical",
+   "iv": 0.0428,
+   "strength": "weak",
+   "protected": true,
+   "in_model": false,
+   "bins": [
+    {
+     "label": "male: married/widowed",
+     "count": 61,
+     "bads": 16,
+     "bad_rate": 0.2623,
+     "woe": 0.1868,
+     "iv": 0.0029
+    },
+    {
+     "label": "male: single",
+     "count": 388,
+     "bads": 104,
+     "bad_rate": 0.268,
+     "woe": 0.1573,
+     "iv": 0.0133
+    },
+    {
+     "label": "female: div/sep/married / male: divorced",
+     "count": 251,
+     "bads": 90,
+     "bad_rate": 0.3586,
+     "woe": -0.2657,
+     "iv": 0.0266
+    }
+   ]
+  },
+  "foreign_worker": {
+   "pretty": "Foreign worker",
+   "kind": "categorical",
+   "iv": 0.026,
+   "strength": "weak",
+   "protected": true,
+   "in_model": false,
+   "bins": [
+    {
+     "label": "no",
+     "count": 27,
+     "bads": 4,
+     "bad_rate": 0.1481,
+     "woe": 0.9019,
+     "iv": 0.0252
+    },
+    {
+     "label": "yes",
+     "count": 673,
+     "bads": 206,
+     "bad_rate": 0.3061,
+     "woe": -0.0288,
+     "iv": 0.0008
+    }
+   ]
+  }
+ },
+ "iv_floor": 0.02,
+ "candidates": [
+  "checking_status",
+  "credit_history",
+  "duration_months",
+  "purpose",
+  "credit_amount",
+  "savings",
+  "property",
+  "other_installment_plans",
+  "age_years",
+  "employment_since",
+  "housing",
+  "installment_rate",
+  "telephone"
+ ],
+ "selection_steps": [
+  {
+   "step": 1,
+   "entered": "checking_status",
+   "p_value": 3.497721002295026e-19,
+   "pseudo_r2": 0.10973644769508017
+  },
+  {
+   "step": 2,
+   "entered": "duration_months",
+   "p_value": 2.450001760287834e-08,
+   "pseudo_r2": 0.1490107001446841
+  },
+  {
+   "step": 3,
+   "entered": "credit_history",
+   "p_value": 1.139567244759048e-06,
+   "pseudo_r2": 0.178376754863255
+  },
+  {
+   "step": 4,
+   "entered": "purpose",
+   "p_value": 3.5832282399137888e-06,
+   "pseudo_r2": 0.2050219133740111
+  },
+  {
+   "step": 5,
+   "entered": "employment_since",
+   "p_value": 0.0010655122487475512,
+   "pseudo_r2": 0.2178299545709308
+  },
+  {
+   "step": 6,
+   "entered": "other_installment_plans",
+   "p_value": 0.007426369377971024,
+   "pseudo_r2": 0.22613097066282617
+  },
+  {
+   "step": 7,
+   "entered": "savings",
+   "p_value": 0.020149917127216598,
+   "pseudo_r2": 0.23262350889383032
+  },
+  {
+   "step": 8,
+   "entered": "credit_amount",
+   "p_value": 0.02034175451810621,
+   "pseudo_r2": 0.23895817064813363
+  },
+  {
+   "step": 9,
+   "entered": "installment_rate",
+   "p_value": 0.0033173366802803973,
+   "pseudo_r2": 0.2492158288448728
+  },
+  {
+   "step": 10,
+   "entered": "telephone",
+   "p_value": 0.029506970818998828,
+   "pseudo_r2": 0.254866270592244
+  }
+ ],
+ "selected_by_stepwise": [
+  "checking_status",
+  "duration_months",
+  "credit_history",
+  "purpose",
+  "employment_since",
+  "other_installment_plans",
+  "savings",
+  "credit_amount",
+  "installment_rate",
+  "telephone"
+ ],
+ "dropped_for_instability": [
+  {
+   "column": "telephone",
+   "pretty": "Telephone",
+   "frequency": 0.36
+  }
+ ],
+ "stability_threshold": 0.5,
+ "selected": [
+  "checking_status",
+  "duration_months",
+  "credit_history",
+  "purpose",
+  "employment_since",
+  "other_installment_plans",
+  "savings",
+  "credit_amount",
+  "installment_rate"
+ ],
+ "model": {
+  "intercept": -0.8661,
+  "pseudo_r2": 0.2492,
+  "llr_p_value": 5.8127895202822e-41,
+  "terms": [
+   {
+    "column": "checking_status",
+    "pretty": "Status of checking account",
+    "coefficient": -0.833,
+    "std_err": 0.1256,
+    "p_value": 3.345777109418049e-11
+   },
+   {
+    "column": "duration_months",
+    "pretty": "Duration of credit (months)",
+    "coefficient": -0.7683,
+    "std_err": 0.223,
+    "p_value": 0.0005690888351812784
+   },
+   {
+    "column": "credit_history",
+    "pretty": "Credit history",
+    "coefficient": -0.7561,
+    "std_err": 0.1777,
+    "p_value": 2.091559640325658e-05
+   },
+   {
+    "column": "purpose",
+    "pretty": "Purpose of the loan",
+    "coefficient": -1.0892,
+    "std_err": 0.2388,
+    "p_value": 5.08874934846967e-06
+   },
+   {
+    "column": "employment_since",
+    "pretty": "Time in present employment",
+    "coefficient": -1.1752,
+    "std_err": 0.3584,
+    "p_value": 0.0010415176331570344
+   },
+   {
+    "column": "other_installment_plans",
+    "pretty": "Other instalment plans",
+    "coefficient": -0.812,
+    "std_err": 0.3191,
+    "p_value": 0.010945873413497086
+   },
+   {
+    "column": "savings",
+    "pretty": "Savings account / bonds",
+    "coefficient": -0.7288,
+    "std_err": 0.2872,
+    "p_value": 0.01115546421881744
+   },
+   {
+    "column": "credit_amount",
+    "pretty": "Credit amount (DM)",
+    "coefficient": -0.9487,
+    "std_err": 0.2976,
+    "p_value": 0.001435266250294035
+   },
+   {
+    "column": "installment_rate",
+    "pretty": "Instalment as % of disposable income",
+    "coefficient": -1.8283,
+    "std_err": 0.6226,
+    "p_value": 0.0033173366802803973
+   }
+  ]
+ },
+ "scorecard": {
+  "checking_status": {
+   "pretty": "Status of checking account",
+   "coefficient": -0.833,
+   "iv": 0.6729,
+   "rows": [
+    {
+     "bin": "no checking account",
+     "count": 284,
+     "bads": 35,
+     "bad_rate": 0.1232,
+     "woe": 1.1148,
+     "iv": 0.3807,
+     "points": 84
+    },
+    {
+     "bin": ">= 200 DM",
+     "count": 48,
+     "bads": 10,
+     "bad_rate": 0.2083,
+     "woe": 0.4877,
+     "iv": 0.0146,
+     "points": 69
+    },
+    {
+     "bin": "0-200 DM",
+     "count": 171,
+     "bads": 65,
+     "bad_rate": 0.3801,
+     "woe": -0.3582,
+     "iv": 0.0334,
+     "points": 48
+    },
+    {
+     "bin": "< 0 DM",
+     "count": 197,
+     "bads": 100,
+     "bad_rate": 0.5076,
+     "woe": -0.8778,
+     "iv": 0.2442,
+     "points": 36
+    }
+   ]
+  },
+  "duration_months": {
+   "pretty": "Duration of credit (months)",
+   "coefficient": -0.7683,
+   "iv": 0.2843,
+   "rows": [
+    {
+     "bin": "<= 6",
+     "count": 58,
+     "bads": 7,
+     "bad_rate": 0.1207,
+     "woe": 1.1386,
+     "iv": 0.0806,
+     "points": 82
+    },
+    {
+     "bin": "(6, 15]",
+     "count": 243,
+     "bads": 55,
+     "bad_rate": 0.2263,
+     "woe": 0.3818,
+     "iv": 0.0465,
+     "points": 65
+    },
+    {
+     "bin": "(15, 30]",
+     "count": 270,
+     "bads": 85,
+     "bad_rate": 0.3148,
+     "woe": -0.0696,
+     "iv": 0.0019,
+     "points": 55
+    },
+    {
+     "bin": "(30, 36]",
+     "count": 68,
+     "bads": 28,
+     "bad_rate": 0.4118,
+     "woe": -0.4906,
+     "iv": 0.0254,
+     "points": 46
+    },
+    {
+     "bin": "> 36",
+     "count": 61,
+     "bads": 35,
+     "bad_rate": 0.5738,
+     "woe": -1.1445,
+     "iv": 0.13,
+     "points": 32
+    }
+   ]
+  },
+  "credit_history": {
+   "pretty": "Credit history",
+   "coefficient": -0.7561,
+   "iv": 0.3248,
+   "rows": [
+    {
+     "bin": "critical account / credits elsewhere",
+     "count": 209,
+     "bads": 33,
+     "bad_rate": 0.1579,
+     "woe": 0.8267,
+     "iv": 0.167,
+     "points": 75
+    },
+    {
+     "bin": "past delay",
+     "count": 62,
+     "bads": 17,
+     "bad_rate": 0.2742,
+     "woe": 0.1262,
+     "iv": 0.0014,
+     "points": 60
+    },
+    {
+     "bin": "existing credits paid duly",
+     "count": 365,
+     "bads": 123,
+     "bad_rate": 0.337,
+     "woe": -0.1705,
+     "iv": 0.0157,
+     "points": 53
+    },
+    {
+     "bin": "no credits / all paid / all paid at this bank",
+     "count": 64,
+     "bads": 37,
+     "bad_rate": 0.5781,
+     "woe": -1.1624,
+     "iv": 0.1408,
+     "points": 32
+    }
+   ]
+  },
+  "purpose": {
+   "pretty": "Purpose of the loan",
+   "coefficient": -1.0892,
+   "iv": 0.1833,
+   "rows": [
+    {
+     "bin": "retraining / car (used)",
+     "count": 82,
+     "bads": 13,
+     "bad_rate": 0.1585,
+     "woe": 0.8219,
+     "iv": 0.0649,
+     "points": 83
+    },
+    {
+     "bin": "radio/TV",
+     "count": 202,
+     "bads": 45,
+     "bad_rate": 0.2228,
+     "woe": 0.4023,
+     "iv": 0.0427,
+     "points": 70
+    },
+    {
+     "bin": "furniture",
+     "count": 123,
+     "bads": 38,
+     "bad_rate": 0.3089,
+     "woe": -0.0422,
+     "iv": 0.0003,
+     "points": 56
+    },
+    {
+     "bin": "appliances / business",
+     "count": 74,
+     "bads": 26,
+     "bad_rate": 0.3514,
+     "woe": -0.2342,
+     "iv": 0.0061,
+     "points": 50
+    },
+    {
+     "bin": "car (new) / other",
+     "count": 170,
+     "bads": 67,
+     "bad_rate": 0.3941,
+     "woe": -0.4173,
+     "iv": 0.0454,
+     "points": 44
+    },
+    {
+     "bin": "education / repairs",
+     "count": 49,
+     "bads": 21,
+     "bad_rate": 0.4286,
+     "woe": -0.5596,
+     "iv": 0.024,
+     "points": 39
+    }
+   ]
+  },
+  "employment_since": {
+   "pretty": "Time in present employment",
+   "coefficient": -1.1752,
+   "iv": 0.0786,
+   "rows": [
+    {
+     "bin": "4-7 years",
+     "count": 129,
+     "bads": 29,
+     "bad_rate": 0.2248,
+     "woe": 0.3906,
+     "iv": 0.0258,
+     "points": 70
+    },
+    {
+     "bin": ">= 7 years",
+     "count": 178,
+     "bads": 44,
+     "bad_rate": 0.2472,
+     "woe": 0.2664,
+     "iv": 0.017,
+     "points": 66
+    },
+    {
+     "bin": "1-4 years",
+     "count": 233,
+     "bads": 77,
+     "bad_rate": 0.3305,
+     "woe": -0.1412,
+     "iv": 0.0068,
+     "points": 52
+    },
+    {
+     "bin": "unemployed",
+     "count": 38,
+     "bads": 13,
+     "bad_rate": 0.3421,
+     "woe": -0.1934,
+     "iv": 0.0021,
+     "points": 50
+    },
+    {
+     "bin": "< 1 year",
+     "count": 122,
+     "bads": 47,
+     "bad_rate": 0.3852,
+     "woe": -0.38,
+     "iv": 0.0269,
+     "points": 44
+    }
+   ]
+  },
+  "other_installment_plans": {
+   "pretty": "Other instalment plans",
+   "coefficient": -0.812,
+   "iv": 0.0895,
+   "rows": [
+    {
+     "bin": "none",
+     "count": 572,
+     "bads": 154,
+     "bad_rate": 0.2692,
+     "woe": 0.1512,
+     "iv": 0.0181,
+     "points": 60
+    },
+    {
+     "bin": "stores / bank",
+     "count": 128,
+     "bads": 56,
+     "bad_rate": 0.4375,
+     "woe": -0.596,
+     "iv": 0.0714,
+     "points": 43
+    }
+   ]
+  },
+  "savings": {
+   "pretty": "Savings account / bonds",
+   "coefficient": -0.7288,
+   "iv": 0.1363,
+   "rows": [
+    {
+     "bin": ">= 1000 DM / 500-1000 DM",
+     "count": 74,
+     "bads": 13,
+     "bad_rate": 0.1757,
+     "woe": 0.6986,
+     "iv": 0.0437,
+     "points": 72
+    },
+    {
+     "bin": "unknown / none",
+     "count": 136,
+     "bads": 27,
+     "bad_rate": 0.1985,
+     "woe": 0.5482,
+     "iv": 0.0515,
+     "points": 68
+    },
+    {
+     "bin": "100-500 DM",
+     "count": 78,
+     "bads": 23,
+     "bad_rate": 0.2949,
+     "woe": 0.0245,
+     "iv": 0.0001,
+     "points": 57
+    },
+    {
+     "bin": "< 100 DM",
+     "count": 412,
+     "bads": 147,
+     "bad_rate": 0.3568,
+     "woe": -0.258,
+     "iv": 0.0411,
+     "points": 51
+    }
+   ]
+  },
+  "credit_amount": {
+   "pretty": "Credit amount (DM)",
+   "coefficient": -0.9487,
+   "iv": 0.1717,
+   "rows": [
+    {
+     "bin": "<= 3960.50",
+     "count": 525,
+     "bads": 133,
+     "bad_rate": 0.2533,
+     "woe": 0.2336,
+     "iv": 0.0389,
+     "points": 63
+    },
+    {
+     "bin": "(3960.50, 5955.65]",
+     "count": 70,
+     "bads": 27,
+     "bad_rate": 0.3857,
+     "woe": -0.3819,
+     "iv": 0.0156,
+     "points": 46
+    },
+    {
+     "bin": "(5955.65, 7166.80]",
+     "count": 35,
+     "bads": 14,
+     "bad_rate": 0.4,
+     "woe": -0.4418,
+     "iv": 0.0105,
+     "points": 45
+    },
+    {
+     "bin": "(7166.80, 9162.70]",
+     "count": 35,
+     "bads": 15,
+     "bad_rate": 0.4286,
+     "woe": -0.5596,
+     "iv": 0.0171,
+     "points": 42
+    },
+    {
+     "bin": "> 9162.70",
+     "count": 35,
+     "bads": 21,
+     "bad_rate": 0.6,
+     "woe": -1.2528,
+     "iv": 0.0895,
+     "points": 23
+    }
+   ]
+  },
+  "installment_rate": {
+   "pretty": "Instalment as % of disposable income",
+   "coefficient": -1.8283,
+   "iv": 0.0285,
+   "rows": [
+    {
+     "bin": "<= 3",
+     "count": 368,
+     "bads": 98,
+     "bad_rate": 0.2663,
+     "woe": 0.1662,
+     "iv": 0.014,
+     "points": 66
+    },
+    {
+     "bin": "> 3",
+     "count": 332,
+     "bads": 112,
+     "bad_rate": 0.3373,
+     "woe": -0.1722,
+     "iv": 0.0145,
+     "points": 48
+    }
+   ]
+  }
+ },
+ "score_range": {
+  "min": 348,
+  "max": 655
+ },
+ "performance": {
+  "train": {
+   "auc": 0.8296,
+   "gini": 0.6592,
+   "ks": 0.5211
+  },
+  "test": {
+   "auc": 0.7802,
+   "gini": 0.5604,
+   "ks": 0.4381
+  },
+  "psi_train_vs_test": 0.0294
+ },
+ "calibration": [
+  {
+   "band": "405-464",
+   "count": 30,
+   "bads": 20,
+   "actual_bad_rate": 0.6667,
+   "predicted_bad_rate": 0.7998
+  },
+  {
+   "band": "464-481",
+   "count": 30,
+   "bads": 19,
+   "actual_bad_rate": 0.6333,
+   "predicted_bad_rate": 0.6254
+  },
+  {
+   "band": "481-494",
+   "count": 30,
+   "bads": 14,
+   "actual_bad_rate": 0.4667,
+   "predicted_bad_rate": 0.5058
+  },
+  {
+   "band": "494-506",
+   "count": 30,
+   "bads": 6,
+   "actual_bad_rate": 0.2,
+   "predicted_bad_rate": 0.3876
+  },
+  {
+   "band": "506-516",
+   "count": 30,
+   "bads": 12,
+   "actual_bad_rate": 0.4,
+   "predicted_bad_rate": 0.3048
+  },
+  {
+   "band": "516-529",
+   "count": 30,
+   "bads": 7,
+   "actual_bad_rate": 0.2333,
+   "predicted_bad_rate": 0.2259
+  },
+  {
+   "band": "529-542",
+   "count": 30,
+   "bads": 4,
+   "actual_bad_rate": 0.1333,
+   "predicted_bad_rate": 0.157
+  },
+  {
+   "band": "542-555",
+   "count": 30,
+   "bads": 7,
+   "actual_bad_rate": 0.2333,
+   "predicted_bad_rate": 0.1084
+  },
+  {
+   "band": "555-575",
+   "count": 30,
+   "bads": 0,
+   "actual_bad_rate": 0.0,
+   "predicted_bad_rate": 0.0626
+  },
+  {
+   "band": "575-620",
+   "count": 30,
+   "bads": 1,
+   "actual_bad_rate": 0.0333,
+   "predicted_bad_rate": 0.0266
+  }
+ ],
+ "cutoffs": [
+  {
+   "cutoff": 405,
+   "approval_rate": 1.0,
+   "bad_rate_approved": 0.3,
+   "bads_accepted": 90,
+   "goods_rejected": 0,
+   "cost": 450.0,
+   "cost_per_applicant": 1.5
+  },
+  {
+   "cutoff": 410,
+   "approval_rate": 0.9933,
+   "bad_rate_approved": 0.2987,
+   "bads_accepted": 89,
+   "goods_rejected": 1,
+   "cost": 446.0,
+   "cost_per_applicant": 1.4867
+  },
+  {
+   "cutoff": 415,
+   "approval_rate": 0.9867,
+   "bad_rate_approved": 0.2973,
+   "bads_accepted": 88,
+   "goods_rejected": 2,
+   "cost": 442.0,
+   "cost_per_applicant": 1.4733
+  },
+  {
+   "cutoff": 420,
+   "approval_rate": 0.9833,
+   "bad_rate_approved": 0.2949,
+   "bads_accepted": 87,
+   "goods_rejected": 2,
+   "cost": 437.0,
+   "cost_per_applicant": 1.4567
+  },
+  {
+   "cutoff": 425,
+   "approval_rate": 0.98,
+   "bad_rate_approved": 0.2925,
+   "bads_accepted": 86,
+   "goods_rejected": 2,
+   "cost": 432.0,
+   "cost_per_applicant": 1.44
+  },
+  {
+   "cutoff": 430,
+   "approval_rate": 0.97,
+   "bad_rate_approved": 0.2852,
+   "bads_accepted": 83,
+   "goods_rejected": 2,
+   "cost": 417.0,
+   "cost_per_applicant": 1.39
+  },
+  {
+   "cutoff": 435,
+   "approval_rate": 0.9667,
+   "bad_rate_approved": 0.2828,
+   "bads_accepted": 82,
+   "goods_rejected": 2,
+   "cost": 412.0,
+   "cost_per_applicant": 1.3733
+  },
+  {
+   "cutoff": 440,
+   "approval_rate": 0.9633,
+   "bad_rate_approved": 0.2837,
+   "bads_accepted": 82,
+   "goods_rejected": 3,
+   "cost": 413.0,
+   "cost_per_applicant": 1.3767
+  },
+  {
+   "cutoff": 445,
+   "approval_rate": 0.9633,
+   "bad_rate_approved": 0.2837,
+   "bads_accepted": 82,
+   "goods_rejected": 3,
+   "cost": 413.0,
+   "cost_per_applicant": 1.3767
+  },
+  {
+   "cutoff": 450,
+   "approval_rate": 0.96,
+   "bad_rate_approved": 0.2847,
+   "bads_accepted": 82,
+   "goods_rejected": 4,
+   "cost": 414.0,
+   "cost_per_applicant": 1.38
+  },
+  {
+   "cutoff": 455,
+   "approval_rate": 0.94,
+   "bad_rate_approved": 0.2801,
+   "bads_accepted": 79,
+   "goods_rejected": 7,
+   "cost": 402.0,
+   "cost_per_applicant": 1.34
+  },
+  {
+   "cutoff": 460,
+   "approval_rate": 0.92,
+   "bad_rate_approved": 0.2717,
+   "bads_accepted": 75,
+   "goods_rejected": 9,
+   "cost": 384.0,
+   "cost_per_applicant": 1.28
+  },
+  {
+   "cutoff": 465,
+   "approval_rate": 0.8933,
+   "bad_rate_approved": 0.2537,
+   "bads_accepted": 68,
+   "goods_rejected": 10,
+   "cost": 350.0,
+   "cost_per_applicant": 1.1667
+  },
+  {
+   "cutoff": 470,
+   "approval_rate": 0.8667,
+   "bad_rate_approved": 0.2462,
+   "bads_accepted": 64,
+   "goods_rejected": 14,
+   "cost": 334.0,
+   "cost_per_applicant": 1.1133
+  },
+  {
+   "cutoff": 475,
+   "approval_rate": 0.83,
+   "bad_rate_approved": 0.2289,
+   "bads_accepted": 57,
+   "goods_rejected": 18,
+   "cost": 303.0,
+   "cost_per_applicant": 1.01
+  },
+  {
+   "cutoff": 480,
+   "approval_rate": 0.8033,
+   "bad_rate_approved": 0.2158,
+   "bads_accepted": 52,
+   "goods_rejected": 21,
+   "cost": 281.0,
+   "cost_per_applicant": 0.9367
+  },
+  {
+   "cutoff": 485,
+   "approval_rate": 0.7667,
+   "bad_rate_approved": 0.2087,
+   "bads_accepted": 48,
+   "goods_rejected": 28,
+   "cost": 268.0,
+   "cost_per_applicant": 0.8933
+  },
+  {
+   "cutoff": 490,
+   "approval_rate": 0.7167,
+   "bad_rate_approved": 0.1907,
+   "bads_accepted": 41,
+   "goods_rejected": 36,
+   "cost": 241.0,
+   "cost_per_applicant": 0.8033
+  },
+  {
+   "cutoff": 495,
+   "approval_rate": 0.6967,
+   "bad_rate_approved": 0.177,
+   "bads_accepted": 37,
+   "goods_rejected": 38,
+   "cost": 223.0,
+   "cost_per_applicant": 0.7433
+  },
+  {
+   "cutoff": 500,
+   "approval_rate": 0.6433,
+   "bad_rate_approved": 0.1762,
+   "bads_accepted": 34,
+   "goods_rejected": 51,
+   "cost": 221.0,
+   "cost_per_applicant": 0.7367
+  },
+  {
+   "cutoff": 505,
+   "approval_rate": 0.6133,
+   "bad_rate_approved": 0.1685,
+   "bads_accepted": 31,
+   "goods_rejected": 57,
+   "cost": 212.0,
+   "cost_per_applicant": 0.7067
+  },
+  {
+   "cutoff": 510,
+   "approval_rate": 0.56,
+   "bad_rate_approved": 0.1548,
+   "bads_accepted": 26,
+   "goods_rejected": 68,
+   "cost": 198.0,
+   "cost_per_applicant": 0.66
+  },
+  {
+   "cutoff": 515,
+   "approval_rate": 0.5067,
+   "bad_rate_approved": 0.1316,
+   "bads_accepted": 20,
+   "goods_rejected": 78,
+   "cost": 178.0,
+   "cost_per_applicant": 0.5933
+  },
+  {
+   "cutoff": 520,
+   "approval_rate": 0.47,
+   "bad_rate_approved": 0.1064,
+   "bads_accepted": 15,
+   "goods_rejected": 84,
+   "cost": 159.0,
+   "cost_per_applicant": 0.53
+  },
+  {
+   "cutoff": 525,
+   "approval_rate": 0.4367,
+   "bad_rate_approved": 0.0916,
+   "bads_accepted": 12,
+   "goods_rejected": 91,
+   "cost": 151.0,
+   "cost_per_applicant": 0.5033
+  },
+  {
+   "cutoff": 530,
+   "approval_rate": 0.39,
+   "bad_rate_approved": 0.094,
+   "bads_accepted": 11,
+   "goods_rejected": 104,
+   "cost": 159.0,
+   "cost_per_applicant": 0.53
+  },
+  {
+   "cutoff": 535,
+   "approval_rate": 0.35,
+   "bad_rate_approved": 0.0762,
+   "bads_accepted": 8,
+   "goods_rejected": 113,
+   "cost": 153.0,
+   "cost_per_applicant": 0.51
+  },
+  {
+   "cutoff": 540,
+   "approval_rate": 0.32,
+   "bad_rate_approved": 0.0833,
+   "bads_accepted": 8,
+   "goods_rejected": 122,
+   "cost": 162.0,
+   "cost_per_applicant": 0.54
+  },
+  {
+   "cutoff": 545,
+   "approval_rate": 0.2667,
+   "bad_rate_approved": 0.0625,
+   "bads_accepted": 5,
+   "goods_rejected": 135,
+   "cost": 160.0,
+   "cost_per_applicant": 0.5333
+  },
+  {
+   "cutoff": 550,
+   "approval_rate": 0.24,
+   "bad_rate_approved": 0.0556,
+   "bads_accepted": 4,
+   "goods_rejected": 142,
+   "cost": 162.0,
+   "cost_per_applicant": 0.54
+  },
+  {
+   "cutoff": 555,
+   "approval_rate": 0.2,
+   "bad_rate_approved": 0.0167,
+   "bads_accepted": 1,
+   "goods_rejected": 151,
+   "cost": 156.0,
+   "cost_per_applicant": 0.52
+  },
+  {
+   "cutoff": 560,
+   "approval_rate": 0.1867,
+   "bad_rate_approved": 0.0179,
+   "bads_accepted": 1,
+   "goods_rejected": 155,
+   "cost": 160.0,
+   "cost_per_applicant": 0.5333
+  },
+  {
+   "cutoff": 565,
+   "approval_rate": 0.1567,
+   "bad_rate_approved": 0.0213,
+   "bads_accepted": 1,
+   "goods_rejected": 164,
+   "cost": 169.0,
+   "cost_per_applicant": 0.5633
+  },
+  {
+   "cutoff": 570,
+   "approval_rate": 0.1133,
+   "bad_rate_approved": 0.0294,
+   "bads_accepted": 1,
+   "goods_rejected": 177,
+   "cost": 182.0,
+   "cost_per_applicant": 0.6067
+  },
+  {
+   "cutoff": 575,
+   "approval_rate": 0.1,
+   "bad_rate_approved": 0.0333,
+   "bads_accepted": 1,
+   "goods_rejected": 181,
+   "cost": 186.0,
+   "cost_per_applicant": 0.62
+  },
+  {
+   "cutoff": 580,
+   "approval_rate": 0.0833,
+   "bad_rate_approved": 0.04,
+   "bads_accepted": 1,
+   "goods_rejected": 186,
+   "cost": 191.0,
+   "cost_per_applicant": 0.6367
+  },
+  {
+   "cutoff": 585,
+   "approval_rate": 0.0733,
+   "bad_rate_approved": 0.0455,
+   "bads_accepted": 1,
+   "goods_rejected": 189,
+   "cost": 194.0,
+   "cost_per_applicant": 0.6467
+  },
+  {
+   "cutoff": 590,
+   "approval_rate": 0.05,
+   "bad_rate_approved": 0.0,
+   "bads_accepted": 0,
+   "goods_rejected": 195,
+   "cost": 195.0,
+   "cost_per_applicant": 0.65
+  },
+  {
+   "cutoff": 595,
+   "approval_rate": 0.04,
+   "bad_rate_approved": 0.0,
+   "bads_accepted": 0,
+   "goods_rejected": 198,
+   "cost": 198.0,
+   "cost_per_applicant": 0.66
+  },
+  {
+   "cutoff": 600,
+   "approval_rate": 0.0233,
+   "bad_rate_approved": 0.0,
+   "bads_accepted": 0,
+   "goods_rejected": 203,
+   "cost": 203.0,
+   "cost_per_applicant": 0.6767
+  },
+  {
+   "cutoff": 605,
+   "approval_rate": 0.0167,
+   "bad_rate_approved": 0.0,
+   "bads_accepted": 0,
+   "goods_rejected": 205,
+   "cost": 205.0,
+   "cost_per_applicant": 0.6833
+  },
+  {
+   "cutoff": 610,
+   "approval_rate": 0.0133,
+   "bad_rate_approved": 0.0,
+   "bads_accepted": 0,
+   "goods_rejected": 206,
+   "cost": 206.0,
+   "cost_per_applicant": 0.6867
+  },
+  {
+   "cutoff": 615,
+   "approval_rate": 0.01,
+   "bad_rate_approved": 0.0,
+   "bads_accepted": 0,
+   "goods_rejected": 207,
+   "cost": 207.0,
+   "cost_per_applicant": 0.69
+  },
+  {
+   "cutoff": 620,
+   "approval_rate": 0.0033,
+   "bad_rate_approved": 0.0,
+   "bads_accepted": 0,
+   "goods_rejected": 209,
+   "cost": 209.0,
+   "cost_per_applicant": 0.6967
+  }
+ ],
+ "cutoffs_train": [
+  {
+   "cutoff": 389,
+   "approval_rate": 1.0,
+   "bad_rate_approved": 0.3,
+   "bads_accepted": 210,
+   "goods_rejected": 0,
+   "cost": 1050.0,
+   "cost_per_applicant": 1.5
+  },
+  {
+   "cutoff": 394,
+   "approval_rate": 0.9986,
+   "bad_rate_approved": 0.299,
+   "bads_accepted": 209,
+   "goods_rejected": 0,
+   "cost": 1045.0,
+   "cost_per_applicant": 1.4929
+  },
+  {
+   "cutoff": 399,
+   "approval_rate": 0.9986,
+   "bad_rate_approved": 0.299,
+   "bads_accepted": 209,
+   "goods_rejected": 0,
+   "cost": 1045.0,
+   "cost_per_applicant": 1.4929
+  },
+  {
+   "cutoff": 404,
+   "approval_rate": 0.9986,
+   "bad_rate_approved": 0.299,
+   "bads_accepted": 209,
+   "goods_rejected": 0,
+   "cost": 1045.0,
+   "cost_per_applicant": 1.4929
+  },
+  {
+   "cutoff": 409,
+   "approval_rate": 0.9971,
+   "bad_rate_approved": 0.2994,
+   "bads_accepted": 209,
+   "goods_rejected": 1,
+   "cost": 1046.0,
+   "cost_per_applicant": 1.4943
+  },
+  {
+   "cutoff": 414,
+   "approval_rate": 0.9957,
+   "bad_rate_approved": 0.2984,
+   "bads_accepted": 208,
+   "goods_rejected": 1,
+   "cost": 1041.0,
+   "cost_per_applicant": 1.4871
+  },
+  {
+   "cutoff": 419,
+   "approval_rate": 0.9929,
+   "bad_rate_approved": 0.2964,
+   "bads_accepted": 206,
+   "goods_rejected": 1,
+   "cost": 1031.0,
+   "cost_per_applicant": 1.4729
+  },
+  {
+   "cutoff": 424,
+   "approval_rate": 0.9929,
+   "bad_rate_approved": 0.2964,
+   "bads_accepted": 206,
+   "goods_rejected": 1,
+   "cost": 1031.0,
+   "cost_per_applicant": 1.4729
+  },
+  {
+   "cutoff": 429,
+   "approval_rate": 0.9857,
+   "bad_rate_approved": 0.2928,
+   "bads_accepted": 202,
+   "goods_rejected": 2,
+   "cost": 1012.0,
+   "cost_per_applicant": 1.4457
+  },
+  {
+   "cutoff": 434,
+   "approval_rate": 0.9786,
+   "bad_rate_approved": 0.2905,
+   "bads_accepted": 199,
+   "goods_rejected": 4,
+   "cost": 999.0,
+   "cost_per_applicant": 1.4271
+  },
+  {
+   "cutoff": 439,
+   "approval_rate": 0.9671,
+   "bad_rate_approved": 0.2836,
+   "bads_accepted": 192,
+   "goods_rejected": 5,
+   "cost": 965.0,
+   "cost_per_applicant": 1.3786
+  },
+  {
+   "cutoff": 444,
+   "approval_rate": 0.9614,
+   "bad_rate_approved": 0.2808,
+   "bads_accepted": 189,
+   "goods_rejected": 6,
+   "cost": 951.0,
+   "cost_per_applicant": 1.3586
+  },
+  {
+   "cutoff": 449,
+   "approval_rate": 0.9557,
+   "bad_rate_approved": 0.2765,
+   "bads_accepted": 185,
+   "goods_rejected": 6,
+   "cost": 931.0,
+   "cost_per_applicant": 1.33
+  },
+  {
+   "cutoff": 454,
+   "approval_rate": 0.9486,
+   "bad_rate_approved": 0.2726,
+   "bads_accepted": 181,
+   "goods_rejected": 7,
+   "cost": 912.0,
+   "cost_per_applicant": 1.3029
+  },
+  {
+   "cutoff": 459,
+   "approval_rate": 0.9314,
+   "bad_rate_approved": 0.2684,
+   "bads_accepted": 175,
+   "goods_rejected": 13,
+   "cost": 888.0,
+   "cost_per_applicant": 1.2686
+  },
+  {
+   "cutoff": 464,
+   "approval_rate": 0.9171,
+   "bad_rate_approved": 0.2648,
+   "bads_accepted": 170,
+   "goods_rejected": 18,
+   "cost": 868.0,
+   "cost_per_applicant": 1.24
+  },
+  {
+   "cutoff": 469,
+   "approval_rate": 0.8843,
+   "bad_rate_approved": 0.2504,
+   "bads_accepted": 155,
+   "goods_rejected": 26,
+   "cost": 801.0,
+   "cost_per_applicant": 1.1443
+  },
+  {
+   "cutoff": 474,
+   "approval_rate": 0.8557,
+   "bad_rate_approved": 0.2337,
+   "bads_accepted": 140,
+   "goods_rejected": 31,
+   "cost": 731.0,
+   "cost_per_applicant": 1.0443
+  },
+  {
+   "cutoff": 479,
+   "approval_rate": 0.8243,
+   "bad_rate_approved": 0.2166,
+   "bads_accepted": 125,
+   "goods_rejected": 38,
+   "cost": 663.0,
+   "cost_per_applicant": 0.9471
+  },
+  {
+   "cutoff": 484,
+   "approval_rate": 0.7814,
+   "bad_rate_approved": 0.1883,
+   "bads_accepted": 103,
+   "goods_rejected": 46,
+   "cost": 561.0,
+   "cost_per_applicant": 0.8014
+  },
+  {
+   "cutoff": 489,
+   "approval_rate": 0.7514,
+   "bad_rate_approved": 0.1787,
+   "bads_accepted": 94,
+   "goods_rejected": 58,
+   "cost": 528.0,
+   "cost_per_applicant": 0.7543
+  },
+  {
+   "cutoff": 494,
+   "approval_rate": 0.7171,
+   "bad_rate_approved": 0.1633,
+   "bads_accepted": 82,
+   "goods_rejected": 70,
+   "cost": 480.0,
+   "cost_per_applicant": 0.6857
+  },
+  {
+   "cutoff": 499,
+   "approval_rate": 0.6729,
+   "bad_rate_approved": 0.138,
+   "bads_accepted": 65,
+   "goods_rejected": 84,
+   "cost": 409.0,
+   "cost_per_applicant": 0.5843
+  },
+  {
+   "cutoff": 504,
+   "approval_rate": 0.6271,
+   "bad_rate_approved": 0.1321,
+   "bads_accepted": 58,
+   "goods_rejected": 109,
+   "cost": 399.0,
+   "cost_per_applicant": 0.57
+  },
+  {
+   "cutoff": 509,
+   "approval_rate": 0.5971,
+   "bad_rate_approved": 0.1196,
+   "bads_accepted": 50,
+   "goods_rejected": 122,
+   "cost": 372.0,
+   "cost_per_applicant": 0.5314
+  },
+  {
+   "cutoff": 514,
+   "approval_rate": 0.5671,
+   "bad_rate_approved": 0.1108,
+   "bads_accepted": 44,
+   "goods_rejected": 137,
+   "cost": 357.0,
+   "cost_per_applicant": 0.51
+  },
+  {
+   "cutoff": 519,
+   "approval_rate": 0.5343,
+   "bad_rate_approved": 0.1043,
+   "bads_accepted": 39,
+   "goods_rejected": 155,
+   "cost": 350.0,
+   "cost_per_applicant": 0.5
+  },
+  {
+   "cutoff": 524,
+   "approval_rate": 0.4986,
+   "bad_rate_approved": 0.0917,
+   "bads_accepted": 32,
+   "goods_rejected": 173,
+   "cost": 333.0,
+   "cost_per_applicant": 0.4757
+  },
+  {
+   "cutoff": 529,
+   "approval_rate": 0.46,
+   "bad_rate_approved": 0.0776,
+   "bads_accepted": 25,
+   "goods_rejected": 193,
+   "cost": 318.0,
+   "cost_per_applicant": 0.4543
+  },
+  {
+   "cutoff": 534,
+   "approval_rate": 0.4143,
+   "bad_rate_approved": 0.0724,
+   "bads_accepted": 21,
+   "goods_rejected": 221,
+   "cost": 326.0,
+   "cost_per_applicant": 0.4657
+  },
+  {
+   "cutoff": 539,
+   "approval_rate": 0.37,
+   "bad_rate_approved": 0.0541,
+   "bads_accepted": 14,
+   "goods_rejected": 245,
+   "cost": 315.0,
+   "cost_per_applicant": 0.45
+  },
+  {
+   "cutoff": 544,
+   "approval_rate": 0.3271,
+   "bad_rate_approved": 0.0437,
+   "bads_accepted": 10,
+   "goods_rejected": 271,
+   "cost": 321.0,
+   "cost_per_applicant": 0.4586
+  },
+  {
+   "cutoff": 549,
+   "approval_rate": 0.2871,
+   "bad_rate_approved": 0.0398,
+   "bads_accepted": 8,
+   "goods_rejected": 297,
+   "cost": 337.0,
+   "cost_per_applicant": 0.4814
+  },
+  {
+   "cutoff": 554,
+   "approval_rate": 0.26,
+   "bad_rate_approved": 0.0385,
+   "bads_accepted": 7,
+   "goods_rejected": 315,
+   "cost": 350.0,
+   "cost_per_applicant": 0.5
+  },
+  {
+   "cutoff": 559,
+   "approval_rate": 0.2314,
+   "bad_rate_approved": 0.037,
+   "bads_accepted": 6,
+   "goods_rejected": 334,
+   "cost": 364.0,
+   "cost_per_applicant": 0.52
+  },
+  {
+   "cutoff": 564,
+   "approval_rate": 0.1929,
+   "bad_rate_approved": 0.037,
+   "bads_accepted": 5,
+   "goods_rejected": 360,
+   "cost": 385.0,
+   "cost_per_applicant": 0.55
+  },
+  {
+   "cutoff": 569,
+   "approval_rate": 0.15,
+   "bad_rate_approved": 0.0286,
+   "bads_accepted": 3,
+   "goods_rejected": 388,
+   "cost": 403.0,
+   "cost_per_applicant": 0.5757
+  },
+  {
+   "cutoff": 574,
+   "approval_rate": 0.1229,
+   "bad_rate_approved": 0.0233,
+   "bads_accepted": 2,
+   "goods_rejected": 406,
+   "cost": 416.0,
+   "cost_per_applicant": 0.5943
+  },
+  {
+   "cutoff": 579,
+   "approval_rate": 0.09,
+   "bad_rate_approved": 0.0159,
+   "bads_accepted": 1,
+   "goods_rejected": 428,
+   "cost": 433.0,
+   "cost_per_applicant": 0.6186
+  },
+  {
+   "cutoff": 584,
+   "approval_rate": 0.0686,
+   "bad_rate_approved": 0.0,
+   "bads_accepted": 0,
+   "goods_rejected": 442,
+   "cost": 442.0,
+   "cost_per_applicant": 0.6314
+  },
+  {
+   "cutoff": 589,
+   "approval_rate": 0.0529,
+   "bad_rate_approved": 0.0,
+   "bads_accepted": 0,
+   "goods_rejected": 453,
+   "cost": 453.0,
+   "cost_per_applicant": 0.6471
+  },
+  {
+   "cutoff": 594,
+   "approval_rate": 0.0471,
+   "bad_rate_approved": 0.0,
+   "bads_accepted": 0,
+   "goods_rejected": 457,
+   "cost": 457.0,
+   "cost_per_applicant": 0.6529
+  },
+  {
+   "cutoff": 599,
+   "approval_rate": 0.0371,
+   "bad_rate_approved": 0.0,
+   "bads_accepted": 0,
+   "goods_rejected": 464,
+   "cost": 464.0,
+   "cost_per_applicant": 0.6629
+  },
+  {
+   "cutoff": 604,
+   "approval_rate": 0.0257,
+   "bad_rate_approved": 0.0,
+   "bads_accepted": 0,
+   "goods_rejected": 472,
+   "cost": 472.0,
+   "cost_per_applicant": 0.6743
+  },
+  {
+   "cutoff": 609,
+   "approval_rate": 0.0157,
+   "bad_rate_approved": 0.0,
+   "bads_accepted": 0,
+   "goods_rejected": 479,
+   "cost": 479.0,
+   "cost_per_applicant": 0.6843
+  },
+  {
+   "cutoff": 614,
+   "approval_rate": 0.0114,
+   "bad_rate_approved": 0.0,
+   "bads_accepted": 0,
+   "goods_rejected": 482,
+   "cost": 482.0,
+   "cost_per_applicant": 0.6886
+  },
+  {
+   "cutoff": 619,
+   "approval_rate": 0.0057,
+   "bad_rate_approved": 0.0,
+   "bads_accepted": 0,
+   "goods_rejected": 486,
+   "cost": 486.0,
+   "cost_per_applicant": 0.6943
+  },
+  {
+   "cutoff": 624,
+   "approval_rate": 0.0014,
+   "bad_rate_approved": 0.0,
+   "bads_accepted": 0,
+   "goods_rejected": 489,
+   "cost": 489.0,
+   "cost_per_applicant": 0.6986
+  },
+  {
+   "cutoff": 629,
+   "approval_rate": 0.0014,
+   "bad_rate_approved": 0.0,
+   "bads_accepted": 0,
+   "goods_rejected": 489,
+   "cost": 489.0,
+   "cost_per_applicant": 0.6986
+  },
+  {
+   "cutoff": 634,
+   "approval_rate": 0.0,
+   "bad_rate_approved": 0.0,
+   "bads_accepted": 0,
+   "goods_rejected": 490,
+   "cost": 490.0,
+   "cost_per_applicant": 0.7
+  }
+ ],
+ "cutoff_chosen_on_train": {
+  "cutoff": 539,
+  "approval_rate": 0.37,
+  "bad_rate_approved": 0.0541,
+  "bads_accepted": 14,
+  "goods_rejected": 245,
+  "cost": 315.0,
+  "cost_per_applicant": 0.45
+ },
+ "best_cutoff": {
+  "cutoff": 539,
+  "approval_rate": 0.33,
+  "bad_rate_approved": 0.0808,
+  "bads_accepted": 8,
+  "goods_rejected": 119,
+  "cost": 159.0,
+  "cost_per_applicant": 0.53
+ },
+ "oracle_cutoff_test": {
+  "cutoff": 525,
+  "approval_rate": 0.4367,
+  "bad_rate_approved": 0.0916,
+  "bads_accepted": 12,
+  "goods_rejected": 91,
+  "cost": 151.0,
+  "cost_per_applicant": 0.5033
+ },
+ "cost_baselines": [
+  {
+   "strategy": "approve everyone",
+   "approval_rate": 1.0,
+   "cost": 450.0,
+   "cost_per_applicant": 1.5
+  },
+  {
+   "strategy": "approve nobody",
+   "approval_rate": 0.0,
+   "cost": 210.0,
+   "cost_per_applicant": 0.7
+  }
+ ],
+ "challengers": [
+  {
+   "model": "Logistic on raw one-hot (no binning)",
+   "test_auc": 0.7459
+  },
+  {
+   "model": "Gradient boosting (black box)",
+   "test_auc": 0.7671
+  }
+ ],
+ "fairness": {
+  "sex": {
+   "rows": [
+    {
+     "group": "female",
+     "n": 92,
+     "actual_bad_rate": 0.3587,
+     "approval_rate": 0.3043,
+     "mean_score": 512.8,
+     "auc": 0.7548
+    },
+    {
+     "group": "male",
+     "n": 208,
+     "actual_bad_rate": 0.274,
+     "approval_rate": 0.3413,
+     "mean_score": 520.2,
+     "auc": 0.7887
+    }
+   ],
+   "adverse_impact_ratio": 0.8916
+  },
+  "foreign_worker": {
+   "rows": [
+    {
+     "group": "yes",
+     "n": 290,
+     "actual_bad_rate": 0.3103,
+     "approval_rate": 0.3276,
+     "mean_score": 517.3,
+     "auc": 0.7773
+    }
+   ],
+   "adverse_impact_ratio": null
+  }
+ },
+ "score_distribution": {
+  "goods": [
+   568.4,
+   465.4,
+   602.9,
+   589.5,
+   504.8,
+   529.4,
+   511.5,
+   553.4,
+   549.5,
+   565.2,
+   539.1,
+   485.4,
+   564.8,
+   527.8,
+   491.9,
+   564.1,
+   520.6,
+   544.5,
+   599.5,
+   481.0,
+   497.3,
+   563.4,
+   540.7,
+   548.7,
+   487.3,
+   573.4,
+   588.0,
+   503.2,
+   534.9,
+   550.8,
+   550.8,
+   483.1,
+   525.2,
+   505.4,
+   599.5,
+   572.8,
+   536.6,
+   566.9,
+   495.7,
+   566.5,
+   486.9,
+   500.1,
+   620.3,
+   565.1,
+   509.6,
+   511.5,
+   502.9,
+   498.9,
+   513.6,
+   599.6,
+   528.0,
+   473.3,
+   515.0,
+   450.9,
+   616.1,
+   603.5,
+   539.0,
+   561.1,
+   588.8,
+   568.7,
+   520.7,
+   599.6,
+   566.5,
+   535.0,
+   525.7,
+   567.8,
+   497.3,
+   574.6,
+   541.6,
+   564.8,
+   542.9,
+   533.0,
+   408.5,
+   511.5,
+   552.0,
+   540.8,
+   565.3,
+   569.9,
+   485.8,
+   450.6,
+   494.5,
+   505.5,
+   538.5,
+   530.9,
+   586.5,
+   521.6,
+   458.2,
+   497.6,
+   486.0,
+   478.8,
+   550.6,
+   488.2,
+   580.5,
+   512.9,
+   498.0,
+   468.3,
+   533.7,
+   588.7,
+   515.3,
+   577.4,
+   577.2,
+   541.7,
+   532.6,
+   564.6,
+   455.0,
+   535.0,
+   502.9,
+   507.3,
+   555.5,
+   517.5,
+   592.1,
+   505.5,
+   509.0,
+   562.7,
+   536.9,
+   529.9,
+   543.3,
+   591.9,
+   502.7,
+   499.8,
+   545.8,
+   505.3,
+   532.9,
+   579.2,
+   499.3,
+   470.6,
+   610.5,
+   479.0,
+   542.0,
+   499.8,
+   533.0,
+   512.9,
+   499.2,
+   521.3,
+   483.6,
+   480.9,
+   412.7,
+   529.7,
+   521.2,
+   506.9,
+   513.0,
+   575.1,
+   514.8,
+   538.8,
+   495.1,
+   576.7,
+   489.9,
+   549.7,
+   558.0,
+   468.5,
+   471.8,
+   545.6,
+   478.3,
+   541.7,
+   511.3,
+   529.4,
+   520.8,
+   472.4,
+   567.7,
+   516.0,
+   529.0,
+   574.7,
+   551.0,
+   550.8,
+   560.9,
+   487.4,
+   529.3,
+   588.7,
+   606.3,
+   556.9,
+   548.4,
+   538.1,
+   469.0,
+   581.7,
+   549.7,
+   508.9,
+   498.9,
+   543.5,
+   499.3,
+   509.0,
+   522.4,
+   463.4,
+   568.9,
+   554.4,
+   527.6,
+   459.6,
+   593.0,
+   528.3,
+   528.1,
+   480.9,
+   550.7,
+   583.9,
+   544.7,
+   560.8,
+   481.5,
+   539.0,
+   540.4,
+   595.6,
+   438.5,
+   536.4,
+   519.4,
+   544.7,
+   617.1,
+   507.8,
+   558.7,
+   518.8,
+   447.6,
+   482.0,
+   568.8,
+   517.8
+  ],
+  "bads": [
+   470.8,
+   478.9,
+   487.8,
+   464.9,
+   504.3,
+   460.9,
+   413.2,
+   465.2,
+   405.1,
+   474.7,
+   419.9,
+   473.3,
+   517.1,
+   510.1,
+   462.1,
+   460.0,
+   477.9,
+   491.0,
+   530.3,
+   429.1,
+   477.2,
+   476.5,
+   471.6,
+   553.0,
+   474.4,
+   470.6,
+   496.9,
+   515.4,
+   428.1,
+   458.9,
+   450.2,
+   493.1,
+   511.3,
+   529.4,
+   508.2,
+   543.9,
+   517.2,
+   477.5,
+   469.8,
+   454.4,
+   455.2,
+   506.9,
+   523.1,
+   521.3,
+   487.4,
+   468.0,
+   503.8,
+   490.0,
+   519.1,
+   480.1,
+   511.7,
+   493.6,
+   481.3,
+   460.9,
+   551.3,
+   450.2,
+   513.6,
+   498.1,
+   543.7,
+   547.5,
+   511.3,
+   485.5,
+   457.0,
+   509.9,
+   553.1,
+   483.0,
+   588.4,
+   508.9,
+   523.0,
+   518.5,
+   420.7,
+   513.2,
+   463.1,
+   434.1,
+   495.4,
+   491.1,
+   533.3,
+   483.0,
+   506.6,
+   463.5,
+   488.9,
+   503.4,
+   488.3,
+   429.0,
+   465.5,
+   471.2,
+   543.4,
+   457.7,
+   531.5,
+   487.9
+  ]
+ },
+ "binning_spec": {
+  "checking_status": {
+   "pretty": "Status of checking account",
+   "kind": "categorical",
+   "bins": [
+    {
+     "label": "no checking account",
+     "lo": null,
+     "hi": null,
+     "levels": [
+      "no checking account"
+     ],
+     "woe": 1.1148,
+     "bad_rate": 0.1232,
+     "count": 284,
+     "points": 84
+    },
+    {
+     "label": ">= 200 DM",
+     "lo": null,
+     "hi": null,
+     "levels": [
+      ">= 200 DM"
+     ],
+     "woe": 0.4877,
+     "bad_rate": 0.2083,
+     "count": 48,
+     "points": 69
+    },
+    {
+     "label": "0-200 DM",
+     "lo": null,
+     "hi": null,
+     "levels": [
+      "0-200 DM"
+     ],
+     "woe": -0.3582,
+     "bad_rate": 0.3801,
+     "count": 171,
+     "points": 48
+    },
+    {
+     "label": "< 0 DM",
+     "lo": null,
+     "hi": null,
+     "levels": [
+      "< 0 DM"
+     ],
+     "woe": -0.8778,
+     "bad_rate": 0.5076,
+     "count": 197,
+     "points": 36
+    }
+   ]
+  },
+  "duration_months": {
+   "pretty": "Duration of credit (months)",
+   "kind": "numeric",
+   "bins": [
+    {
+     "label": "<= 6",
+     "lo": null,
+     "hi": 6.0,
+     "levels": [],
+     "woe": 1.1386,
+     "bad_rate": 0.1207,
+     "count": 58,
+     "points": 82
+    },
+    {
+     "label": "(6, 15]",
+     "lo": 6.0,
+     "hi": 15.0,
+     "levels": [],
+     "woe": 0.3818,
+     "bad_rate": 0.2263,
+     "count": 243,
+     "points": 65
+    },
+    {
+     "label": "(15, 30]",
+     "lo": 15.0,
+     "hi": 30.0,
+     "levels": [],
+     "woe": -0.0696,
+     "bad_rate": 0.3148,
+     "count": 270,
+     "points": 55
+    },
+    {
+     "label": "(30, 36]",
+     "lo": 30.0,
+     "hi": 36.0,
+     "levels": [],
+     "woe": -0.4906,
+     "bad_rate": 0.4118,
+     "count": 68,
+     "points": 46
+    },
+    {
+     "label": "> 36",
+     "lo": 36.0,
+     "hi": null,
+     "levels": [],
+     "woe": -1.1445,
+     "bad_rate": 0.5738,
+     "count": 61,
+     "points": 32
+    }
+   ]
+  },
+  "credit_history": {
+   "pretty": "Credit history",
+   "kind": "categorical",
+   "bins": [
+    {
+     "label": "critical account / credits elsewhere",
+     "lo": null,
+     "hi": null,
+     "levels": [
+      "critical account / credits elsewhere"
+     ],
+     "woe": 0.8267,
+     "bad_rate": 0.1579,
+     "count": 209,
+     "points": 75
+    },
+    {
+     "label": "past delay",
+     "lo": null,
+     "hi": null,
+     "levels": [
+      "past delay"
+     ],
+     "woe": 0.1262,
+     "bad_rate": 0.2742,
+     "count": 62,
+     "points": 60
+    },
+    {
+     "label": "existing credits paid duly",
+     "lo": null,
+     "hi": null,
+     "levels": [
+      "existing credits paid duly"
+     ],
+     "woe": -0.1705,
+     "bad_rate": 0.337,
+     "count": 365,
+     "points": 53
+    },
+    {
+     "label": "no credits / all paid / all paid at this bank",
+     "lo": null,
+     "hi": null,
+     "levels": [
+      "no credits / all paid",
+      "all paid at this bank"
+     ],
+     "woe": -1.1624,
+     "bad_rate": 0.5781,
+     "count": 64,
+     "points": 32
+    }
+   ]
+  },
+  "purpose": {
+   "pretty": "Purpose of the loan",
+   "kind": "categorical",
+   "bins": [
+    {
+     "label": "retraining / car (used)",
+     "lo": null,
+     "hi": null,
+     "levels": [
+      "retraining",
+      "car (used)"
+     ],
+     "woe": 0.8219,
+     "bad_rate": 0.1585,
+     "count": 82,
+     "points": 83
+    },
+    {
+     "label": "radio/TV",
+     "lo": null,
+     "hi": null,
+     "levels": [
+      "radio/TV"
+     ],
+     "woe": 0.4023,
+     "bad_rate": 0.2228,
+     "count": 202,
+     "points": 70
+    },
+    {
+     "label": "furniture",
+     "lo": null,
+     "hi": null,
+     "levels": [
+      "furniture"
+     ],
+     "woe": -0.0422,
+     "bad_rate": 0.3089,
+     "count": 123,
+     "points": 56
+    },
+    {
+     "label": "appliances / business",
+     "lo": null,
+     "hi": null,
+     "levels": [
+      "appliances",
+      "business"
+     ],
+     "woe": -0.2342,
+     "bad_rate": 0.3514,
+     "count": 74,
+     "points": 50
+    },
+    {
+     "label": "car (new) / other",
+     "lo": null,
+     "hi": null,
+     "levels": [
+      "car (new)",
+      "other"
+     ],
+     "woe": -0.4173,
+     "bad_rate": 0.3941,
+     "count": 170,
+     "points": 44
+    },
+    {
+     "label": "education / repairs",
+     "lo": null,
+     "hi": null,
+     "levels": [
+      "education",
+      "repairs"
+     ],
+     "woe": -0.5596,
+     "bad_rate": 0.4286,
+     "count": 49,
+     "points": 39
+    }
+   ]
+  },
+  "employment_since": {
+   "pretty": "Time in present employment",
+   "kind": "categorical",
+   "bins": [
+    {
+     "label": "4-7 years",
+     "lo": null,
+     "hi": null,
+     "levels": [
+      "4-7 years"
+     ],
+     "woe": 0.3906,
+     "bad_rate": 0.2248,
+     "count": 129,
+     "points": 70
+    },
+    {
+     "label": ">= 7 years",
+     "lo": null,
+     "hi": null,
+     "levels": [
+      ">= 7 years"
+     ],
+     "woe": 0.2664,
+     "bad_rate": 0.2472,
+     "count": 178,
+     "points": 66
+    },
+    {
+     "label": "1-4 years",
+     "lo": null,
+     "hi": null,
+     "levels": [
+      "1-4 years"
+     ],
+     "woe": -0.1412,
+     "bad_rate": 0.3305,
+     "count": 233,
+     "points": 52
+    },
+    {
+     "label": "unemployed",
+     "lo": null,
+     "hi": null,
+     "levels": [
+      "unemployed"
+     ],
+     "woe": -0.1934,
+     "bad_rate": 0.3421,
+     "count": 38,
+     "points": 50
+    },
+    {
+     "label": "< 1 year",
+     "lo": null,
+     "hi": null,
+     "levels": [
+      "< 1 year"
+     ],
+     "woe": -0.38,
+     "bad_rate": 0.3852,
+     "count": 122,
+     "points": 44
+    }
+   ]
+  },
+  "other_installment_plans": {
+   "pretty": "Other instalment plans",
+   "kind": "categorical",
+   "bins": [
+    {
+     "label": "none",
+     "lo": null,
+     "hi": null,
+     "levels": [
+      "none"
+     ],
+     "woe": 0.1512,
+     "bad_rate": 0.2692,
+     "count": 572,
+     "points": 60
+    },
+    {
+     "label": "stores / bank",
+     "lo": null,
+     "hi": null,
+     "levels": [
+      "stores",
+      "bank"
+     ],
+     "woe": -0.596,
+     "bad_rate": 0.4375,
+     "count": 128,
+     "points": 43
+    }
+   ]
+  },
+  "savings": {
+   "pretty": "Savings account / bonds",
+   "kind": "categorical",
+   "bins": [
+    {
+     "label": ">= 1000 DM / 500-1000 DM",
+     "lo": null,
+     "hi": null,
+     "levels": [
+      ">= 1000 DM",
+      "500-1000 DM"
+     ],
+     "woe": 0.6986,
+     "bad_rate": 0.1757,
+     "count": 74,
+     "points": 72
+    },
+    {
+     "label": "unknown / none",
+     "lo": null,
+     "hi": null,
+     "levels": [
+      "unknown / none"
+     ],
+     "woe": 0.5482,
+     "bad_rate": 0.1985,
+     "count": 136,
+     "points": 68
+    },
+    {
+     "label": "100-500 DM",
+     "lo": null,
+     "hi": null,
+     "levels": [
+      "100-500 DM"
+     ],
+     "woe": 0.0245,
+     "bad_rate": 0.2949,
+     "count": 78,
+     "points": 57
+    },
+    {
+     "label": "< 100 DM",
+     "lo": null,
+     "hi": null,
+     "levels": [
+      "< 100 DM"
+     ],
+     "woe": -0.258,
+     "bad_rate": 0.3568,
+     "count": 412,
+     "points": 51
+    }
+   ]
+  },
+  "credit_amount": {
+   "pretty": "Credit amount (DM)",
+   "kind": "numeric",
+   "bins": [
+    {
+     "label": "<= 3960.50",
+     "lo": null,
+     "hi": 3960.5,
+     "levels": [],
+     "woe": 0.2336,
+     "bad_rate": 0.2533,
+     "count": 525,
+     "points": 63
+    },
+    {
+     "label": "(3960.50, 5955.65]",
+     "lo": 3960.5,
+     "hi": 5955.6500000000015,
+     "levels": [],
+     "woe": -0.3819,
+     "bad_rate": 0.3857,
+     "count": 70,
+     "points": 46
+    },
+    {
+     "label": "(5955.65, 7166.80]",
+     "lo": 5955.6500000000015,
+     "hi": 7166.8,
+     "levels": [],
+     "woe": -0.4418,
+     "bad_rate": 0.4,
+     "count": 35,
+     "points": 45
+    },
+    {
+     "label": "(7166.80, 9162.70]",
+     "lo": 7166.8,
+     "hi": 9162.700000000008,
+     "levels": [],
+     "woe": -0.5596,
+     "bad_rate": 0.4286,
+     "count": 35,
+     "points": 42
+    },
+    {
+     "label": "> 9162.70",
+     "lo": 9162.700000000008,
+     "hi": null,
+     "levels": [],
+     "woe": -1.2528,
+     "bad_rate": 0.6,
+     "count": 35,
+     "points": 23
+    }
+   ]
+  },
+  "installment_rate": {
+   "pretty": "Instalment as % of disposable income",
+   "kind": "numeric",
+   "bins": [
+    {
+     "label": "<= 3",
+     "lo": null,
+     "hi": 3.0,
+     "levels": [],
+     "woe": 0.1662,
+     "bad_rate": 0.2663,
+     "count": 368,
+     "points": 66
+    },
+    {
+     "label": "> 3",
+     "lo": 3.0,
+     "hi": null,
+     "levels": [],
+     "woe": -0.1722,
+     "bad_rate": 0.3373,
+     "count": 332,
+     "points": 48
+    }
+   ]
+  }
+ },
+ "bin_options": {
+  "checking_status": [
+   "no checking account",
+   ">= 200 DM",
+   "0-200 DM",
+   "< 0 DM"
+  ],
+  "duration_months": [
+   "<= 6",
+   "(6, 15]",
+   "(15, 30]",
+   "(30, 36]",
+   "> 36"
+  ],
+  "credit_history": [
+   "critical account / credits elsewhere",
+   "past delay",
+   "existing credits paid duly",
+   "no credits / all paid / all paid at this bank"
+  ],
+  "purpose": [
+   "retraining / car (used)",
+   "radio/TV",
+   "furniture",
+   "appliances / business",
+   "car (new) / other",
+   "education / repairs"
+  ],
+  "employment_since": [
+   "4-7 years",
+   ">= 7 years",
+   "1-4 years",
+   "unemployed",
+   "< 1 year"
+  ],
+  "other_installment_plans": [
+   "none",
+   "stores / bank"
+  ],
+  "savings": [
+   ">= 1000 DM / 500-1000 DM",
+   "unknown / none",
+   "100-500 DM",
+   "< 100 DM"
+  ],
+  "credit_amount": [
+   "<= 3960.50",
+   "(3960.50, 5955.65]",
+   "(5955.65, 7166.80]",
+   "(7166.80, 9162.70]",
+   "> 9162.70"
+  ],
+  "installment_rate": [
+   "<= 3",
+   "> 3"
+  ]
+ },
+ "raw_levels": {
+  "checking_status": [
+   "0-200 DM",
+   "< 0 DM",
+   ">= 200 DM",
+   "no checking account"
+  ],
+  "credit_history": [
+   "all paid at this bank",
+   "critical account / credits elsewhere",
+   "existing credits paid duly",
+   "no credits / all paid",
+   "past delay"
+  ],
+  "purpose": [
+   "appliances",
+   "business",
+   "car (new)",
+   "car (used)",
+   "education",
+   "furniture",
+   "other",
+   "radio/TV",
+   "repairs",
+   "retraining"
+  ],
+  "employment_since": [
+   "1-4 years",
+   "4-7 years",
+   "< 1 year",
+   ">= 7 years",
+   "unemployed"
+  ],
+  "other_installment_plans": [
+   "bank",
+   "none",
+   "stores"
+  ],
+  "savings": [
+   "100-500 DM",
+   "500-1000 DM",
+   "< 100 DM",
+   ">= 1000 DM",
+   "unknown / none"
+  ]
+ },
+ "numeric_ranges": {
+  "duration_months": {
+   "min": 4.0,
+   "max": 72.0,
+   "median": 18.0
+  },
+  "credit_amount": {
+   "min": 250.0,
+   "max": 18424.0,
+   "median": 2319.5
+  },
+  "installment_rate": {
+   "min": 1.0,
+   "max": 4.0,
+   "median": 3.0
+  }
+ },
+ "cross_validation": {
+  "n_fits": 25,
+  "n_splits": 5,
+  "n_repeats": 5,
+  "gini_mean": 0.5599,
+  "gini_std": 0.0831,
+  "gini_p05": 0.4053,
+  "gini_p95": 0.6683,
+  "ks_mean": 0.4839,
+  "ks_std": 0.0701,
+  "selection_frequency": {
+   "checking_status": 1.0,
+   "duration_months": 1.0,
+   "purpose": 1.0,
+   "credit_history": 1.0,
+   "employment_since": 0.92,
+   "other_installment_plans": 0.88,
+   "savings": 0.88,
+   "credit_amount": 0.64,
+   "installment_rate": 0.56,
+   "telephone": 0.36,
+   "other_debtors": 0.32,
+   "age_years": 0.16,
+   "property": 0.04
+  }
+ }
+}
