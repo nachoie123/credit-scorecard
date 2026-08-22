@@ -6,7 +6,8 @@ logistic regression, points scaling — and then spends most of its effort tryin
 to prove the result isn't real.
 
 There is an animated web explainer that walks through the whole build, ending in
-a form where you score an applicant and watch the points add up.
+a form where you score an applicant and watch the points add up:
+**[nachosanbenito.me/credit-scorecard](https://nachosanbenito.me/credit-scorecard/)**.
 
 ![scorecard](scorecard.png)
 
