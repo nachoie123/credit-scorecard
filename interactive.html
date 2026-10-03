@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none';
+  script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'
+  https://fonts.googleapis.com; font-src https://fonts.gstatic.com;
+  img-src 'self' data:; connect-src 'self'; base-uri 'none';
+  form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Credit Scorecard — how a lender turns an application into points</title>
+<meta name="description" content="A credit scorecard built end to end on 1,000 real German loan applications: coarse classing, Weight of Evidence, logistic regression, points scaling — and then stress-tested to see whether it holds.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nachosanbenito.me/credit-scorecard/">
+<meta property="og:title" content="Turning a loan application into points">
+<meta property="og:description" content="Nine animated steps from a raw application form to a points table you can read, ending in an underwriting form you can try.">
+<meta property="og:image" content="https://nachosanbenito.me/credit-scorecard/scorecard.png">
+<meta property="og:image:width" content="1690">
+<meta property="og:image:height" content="1170">
+<meta property="og:image:alt" content="The finished scorecard: characteristics, bins and the points each one adds.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ------------------------------------------------------------------
+   Tokens.
+
+   The data colours are not hand-picked: they were run through the
+   dataviz validator against THIS page's surfaces (#ffffff light,
+   #141b26 dark) and cleared every gate in both modes —
+   lightness band, chroma floor, CVD separation (worst adjacent pair
+   dE 22.8 light / 20.0 dark under protanopia, target >= 8), the
+   normal-vision floor (29.6 / 27.1, floor 15) and 3:1 contrast.
+   Status colours are a separate fixed scale and never do series work.
+------------------------------------------------------------------ */
+:root{
+  color-scheme:light;
+  --paper:#f4f6f9; --surface:#ffffff; --surface-2:#fafbfd;
+  --ink:#0d1b2a; --ink-2:#33455c; --muted:#65748a;
+  --rule:#e3e7ee; --rule-strong:#c8cfda;
+  --grid:#eaeef4; --axis:#c8cfda;
+
+  /* data — series identity */
+  --series-1:#2a6fc4; --series-2:#c0392f;
+  --series-1-wash:rgba(42,111,196,.13);
+  --series-2-wash:rgba(192,57,47,.13);
+  --neutral-mark:#94a0b0;      /* diverging midpoint, reference lines */
+
+  /* chrome accents (never data) */
+  --navy:#1d5599; --navy-soft:#eaf0f8;
+
+  /* status — fixed scale, always icon + label */
+  --ok:#0a8a0a; --ok-soft:#e9f5e9; --ok-rule:#bcdfbc;
+  --crit:#c0392f; --crit-soft:#fbeceb; --crit-rule:#f0cdca;
+  --warn:#8a5d00; --warn-soft:#fdf6e6; --warn-mark:#fab219;
+
+  --shadow:0 1px 2px rgba(13,27,42,.05), 0 10px 28px rgba(13,27,42,.05);
+  --sans:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+
+  /* Motion. One easing for everything that enters, a faster one for state
+     that changes under the reader's hand. Every animation on this page is
+     opacity or transform — a background derived from a custom property is
+     never transitioned, because Chrome holds the old colour through the
+     theme swap and leaves the page light with the cards already dark. */
+  --ease-out:cubic-bezier(.22,.68,.28,1);
+  --enter:.52s; --settle:.3s;
+}
+/* Dark is a selected theme, not an inverted one: every data step was
+   re-validated against the dark surface rather than flipped. */
+@media (prefers-color-scheme:dark){
+  :root:where(:not([data-theme="light"])){
+    color-scheme:dark;
+    --paper:#0c111a; --surface:#141b26; --surface-2:#19212e;
+    --ink:#f2f5f9; --ink-2:#c2ccd9; --muted:#8b98a8;
+    --rule:#252f3e; --rule-strong:#3a4759;
+    --grid:#212b39; --axis:#3a4759;
+    --series-1:#4e93e4; --series-2:#e2685c;
+    --series-1-wash:rgba(78,147,228,.18);
+    --series-2-wash:rgba(226,104,92,.18);
+    --neutral-mark:#7d8b9c;
+    --navy:#6ea8ec; --navy-soft:#1b2939;
+    --ok:#3cb63c; --ok-soft:#152616; --ok-rule:#2b4a2c;
+    --crit:#e2685c; --crit-soft:#2a1a19; --crit-rule:#4d2f2c;
+    --warn:#e5ab3a; --warn-soft:#251d0c; --warn-mark:#fab219;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#0c111a; --surface:#141b26; --surface-2:#19212e;
+  --ink:#f2f5f9; --ink-2:#c2ccd9; --muted:#8b98a8;
+  --rule:#252f3e; --rule-strong:#3a4759;
+  --grid:#212b39; --axis:#3a4759;
+  --series-1:#4e93e4; --series-2:#e2685c;
+  --series-1-wash:rgba(78,147,228,.18);
+  --series-2-wash:rgba(226,104,92,.18);
+  --neutral-mark:#7d8b9c;
+  --navy:#6ea8ec; --navy-soft:#1b2939;
+  --ok:#3cb63c; --ok-soft:#152616; --ok-rule:#2b4a2c;
+  --crit:#e2685c; --crit-soft:#2a1a19; --crit-rule:#4d2f2c;
+  --warn:#e5ab3a; --warn-soft:#251d0c; --warn-mark:#fab219;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+/* No transition on the theme swap: animating a var()-driven background
+   leaves body stuck on the old colour in Chrome (dark cards on a light
+   page), and a fading page is the wrong thing to animate anyway. */
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+  font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+:focus-visible{outline:2px solid var(--series-1);outline-offset:2px;border-radius:2px}
+.wrap{display:grid;grid-template-columns:220px minmax(0,1fr);gap:48px;
+  max-width:1180px;margin:0 auto;padding:0 32px}
+/* ---------- rail ---------- */
+.rail{position:sticky;top:0;align-self:start;height:100vh;padding:48px 0;
+  display:flex;flex-direction:column;gap:2px;font-size:13px}
+.rail .brand{font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  font-size:10.5px;color:var(--muted);margin-bottom:22px}
+.rail a{display:flex;gap:10px;align-items:baseline;text-decoration:none;
+  color:var(--muted);padding:5px 10px 5px 12px;border-left:2px solid transparent;
+  transition:.25s}
+.rail a .n{font-family:var(--mono);font-size:11px;opacity:.7;
+  font-variant-numeric:tabular-nums}
+.rail a:hover{color:var(--ink)}
+.rail a.active{color:var(--navy);font-weight:500}
+/* A single rule slides between the steps. Nine independent border-colour
+   swaps read as flicker; one travelling mark reads as position. */
+/* top:0 anchors the marker to the rail's padding edge, which is the same
+   origin offsetTop reports from — without it the marker is offset by the
+   rail's own padding and trails every link by 48px. */
+.rail .marker{position:absolute;top:0;left:0;width:2px;background:var(--navy);
+  border-radius:1px;opacity:0;pointer-events:none;
+  transition:transform .34s var(--ease-out),height .34s var(--ease-out),
+             opacity .2s linear}
+.rail .marker.on{opacity:1}
+.theme-toggle{margin-top:auto;display:flex;align-items:center;gap:8px;
+  font-family:var(--sans);font-size:12.5px;color:var(--muted);cursor:pointer;
+  background:none;border:1px solid var(--rule);border-radius:2px;
+  padding:7px 11px;transition:.2s;text-align:left}
+.theme-toggle:hover{color:var(--ink);border-color:var(--rule-strong)}
+/* ---------- page ---------- */
+main{padding:48px 0 120px;min-width:0}
+.hero{padding:56px 0 40px;border-bottom:1px solid var(--rule)}
+.kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--navy);margin-bottom:18px}
+h1{font-size:44px;line-height:1.1;margin:0 0 18px;letter-spacing:-.022em;
+  font-weight:600;max-width:15ch}
+.lede{font-size:18.5px;color:var(--ink-2);max-width:62ch;margin:0}
+.hero .src{margin-top:26px;font-size:13px;color:var(--muted);font-family:var(--mono)}
+section.step{padding:64px 0;border-bottom:1px solid var(--rule)}
+/* The reveal is an enhancement, never a gate: the hidden state is only
+   applied once the script has confirmed it can undo it. Without this,
+   a deep link, a print, or a throttled observer leaves the page blank.
+
+   The stagger runs on the section's children rather than the section, so a
+   step assembles itself — heading, then argument, then evidence — instead of
+   sliding in as one slab. --i is the child's index, set once at reveal. */
+html.js-reveal .hero > *,
+html.js-reveal section.step > *{opacity:0;transform:translateY(11px);
+  transition:opacity var(--enter) var(--ease-out) calc(var(--i,0)*70ms),
+             transform var(--enter) var(--ease-out) calc(var(--i,0)*70ms)}
+html.js-reveal .hero.in > *,
+html.js-reveal section.step.in > *{opacity:1;transform:none}
+/* Nothing below may leave content hidden: print and reduced motion both
+   undo the start state at the same specificity that set it. */
+@media (prefers-reduced-motion:reduce){
+  html.js-reveal .hero > *,
+  html.js-reveal section.step > *{opacity:1;transform:none}
+}
+h2{font-size:13px;font-family:var(--mono);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--navy);margin:0 0 10px;font-weight:500}
+h2 .num{color:var(--rule-strong);margin-right:10px}
+h3{font-size:29px;line-height:1.2;margin:0 0 16px;font-weight:600;
+  letter-spacing:-.015em;max-width:24ch}
+h4{font-size:15px;font-weight:600;margin:0 0 4px}
+p{max-width:66ch;margin:0 0 16px;color:var(--ink-2)}
+p.small{font-size:14.2px;color:var(--muted)}
+b,strong{font-weight:600;color:var(--ink)}
+.mono{font-family:var(--mono)}
+/* ---------- tiles ---------- */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:1px;background:var(--rule);border:1px solid var(--rule);margin:28px 0}
+.tile{background:var(--surface);padding:18px 18px 16px}
+.tile .lab{font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:8px}
+/* Big standalone figures take proportional sans figures: tabular digits
+   make a number like 121 look loose at display sizes. */
+.tile .val{font-family:var(--sans);font-size:29px;font-weight:600;
+  letter-spacing:-.025em;line-height:1}
+.tile .sub{font-size:12.5px;color:var(--muted);margin-top:7px}
+.tile.accent .val{color:var(--navy)}
+.tile.risk .val{color:var(--crit)}
+.tile.safe .val{color:var(--ok)}
+/* ---------- tables ---------- */
+.tbl-wrap{overflow-x:auto;margin:22px 0}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{text-align:left;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--muted);font-weight:500;padding:0 12px 8px 0;
+  border-bottom:1px solid var(--rule-strong);white-space:nowrap}
+td{padding:8px 12px 8px 0;border-bottom:1px solid var(--rule);vertical-align:middle;
+  color:var(--ink-2)}
+td.num,th.num{text-align:right;font-family:var(--mono);
+  font-variant-numeric:tabular-nums}
+tr.total td{border-top:1px solid var(--rule-strong);border-bottom:none;
+  font-weight:600;padding-top:12px;color:var(--ink)}
+tr.dim td{color:var(--muted)}
+tbody tr:hover td{background:var(--surface-2)}
+.tag{display:inline-block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  padding:2px 7px;border-radius:2px;font-weight:600;vertical-align:middle}
+.tag.in{background:var(--navy-soft);color:var(--navy)}
+.tag.out{background:var(--warn-soft);color:var(--warn)}
+.tag.no{background:var(--crit-soft);color:var(--crit)}
+.tag.ok{background:var(--ok-soft);color:var(--ok)}
+/* ---------- bars ----------
+   4px rounded data-end, square at the baseline; one hue for every bar,
+   because the categories are nominal and the length already carries the
+   magnitude. */
+.bar-row{display:grid;grid-template-columns:minmax(120px,220px) 1fr 62px;
+  gap:14px;align-items:center;padding:5px 0;font-size:13.5px;border-radius:2px}
+.bar-row .lbl{color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
+.bar-track{background:var(--grid);height:10px;position:relative;border-radius:2px}
+.bar-fill{height:10px;background:var(--series-1);width:0;
+  border-radius:0 4px 4px 0;transform-origin:left center;
+  transition:transform .8s var(--ease-out) var(--d,0s)}
+.bar-fill.grow{transform:scaleX(0)}
+.bar-row:hover .bar-fill,.bar-row:focus-within .bar-fill{filter:brightness(1.08)}
+.bar-row .v{font-family:var(--mono);font-size:12.5px;text-align:right;
+  color:var(--muted);font-variant-numeric:tabular-nums}
+/* diverging: two poles that read as opposite, neutral gray at zero */
+.woe-row{display:grid;grid-template-columns:minmax(140px,250px) 1fr 120px;gap:14px;
+  align-items:center;padding:6px 0;font-size:13.5px;border-bottom:1px solid var(--rule)}
+.woe-row:hover{background:var(--surface-2)}
+.woe-axis{position:relative;height:22px}
+.woe-axis .zero{position:absolute;top:0;bottom:0;width:1px;
+  background:var(--neutral-mark);left:50%}
+/* Anchored at the zero line and scaled out of it, so a negative bar grows
+   leftwards instead of sliding in from its own far end. Transform only —
+   width would relayout every row on every frame. */
+.woe-bar{position:absolute;top:5px;height:12px;transform-origin:left center;
+  transition:transform .62s var(--ease-out) var(--d,0s)}
+.woe-bar.pos{background:var(--series-1);left:50%;border-radius:0 4px 4px 0}
+.woe-bar.neg{background:var(--series-2);right:50%;transform-origin:right center;
+  border-radius:4px 0 0 4px}
+.woe-bar.grow{transform:scaleX(0)}
+.woe-meta{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:right;
+  font-variant-numeric:tabular-nums}
+/* ---------- controls ---------- */
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 4px}
+button.chip{font-family:var(--sans);font-size:13px;padding:6px 13px;
+  border:1px solid var(--rule-strong);background:var(--surface);color:var(--muted);
+  border-radius:2px;cursor:pointer;transition:.2s}
+button.chip:hover{border-color:var(--navy);color:var(--navy)}
+button.chip.on{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+button.chip.prot{border-style:dashed;color:var(--warn);border-color:var(--warn)}
+button.chip.prot.on{background:var(--warn);border-color:var(--warn);color:var(--surface)}
+.card{background:var(--surface);border:1px solid var(--rule);padding:24px;margin:24px 0;
+  border-radius:3px;box-shadow:var(--shadow)}
+.card .hint{font-size:13px;color:var(--muted);margin:0 0 18px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+label.f{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:5px}
+select,input[type=number]{width:100%;font-family:var(--sans);font-size:14px;
+  padding:7px 9px;border:1px solid var(--rule-strong);background:var(--surface);
+  color:var(--ink);border-radius:2px}
+select:focus,input:focus{outline:2px solid var(--series-1);border-color:var(--series-1)}
+input[type=range]{width:100%;accent-color:var(--series-1)}
+.verdict{display:flex;flex-wrap:wrap;gap:26px;align-items:center;
+  padding:18px 20px;border:1px solid var(--rule);margin-top:20px;
+  background:var(--surface-2);border-radius:3px}
+/* This figure counts between values, so it takes tabular digits: with
+   proportional ones the number changes width mid-count and the label beside
+   it walks across the row. */
+.verdict .big{font-family:var(--sans);font-size:40px;font-weight:600;line-height:1;
+  letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.verdict .lab{font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:6px}
+/* status = icon + label, never colour alone */
+.decision{display:inline-flex;align-items:center;gap:7px;padding:7px 15px;
+  font-weight:600;font-size:14px;border-radius:2px;letter-spacing:.04em}
+.decision svg{flex:none}
+/* Only on an actual approve/decline flip — the verdict re-renders on every
+   frame of a cutoff drag, and a chip that pops sixty times a second is noise. */
+.decision.flip{animation:flip-in .3s var(--ease-out) both}
+@keyframes flip-in{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+.decision.approve{background:var(--ok-soft);color:var(--ok);
+  border:1px solid var(--ok-rule)}
+.decision.decline{background:var(--crit-soft);color:var(--crit);
+  border:1px solid var(--crit-rule)}
+.note{border-left:2px solid var(--series-1);background:var(--surface);
+  padding:14px 18px;margin:24px 0;font-size:14.5px;color:var(--ink-2);
+  border-radius:0 3px 3px 0}
+.note.warn{border-left-color:var(--warn-mark)}
+.note > b:first-child{display:block;margin-bottom:3px;font-size:11px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+/* ---------- figures ---------- */
+figure{margin:0}
+.fig{position:relative;background:var(--surface);border:1px solid var(--rule);
+  border-radius:3px;padding:16px 16px 8px;margin:18px 0}
+.fig-head{display:flex;justify-content:space-between;align-items:flex-start;
+  gap:16px;margin-bottom:6px;flex-wrap:wrap}
+.fig svg{display:block;max-width:100%;overflow:visible}
+.legend{display:flex;gap:18px;font-size:12.5px;color:var(--muted);
+  margin-top:10px;flex-wrap:wrap;align-items:center}
+.legend .key{display:inline-flex;align-items:center;gap:7px;color:var(--ink-2)}
+.legend .key i{display:inline-block;width:12px;height:12px;border-radius:2px}
+.legend .key i.line{width:16px;height:2px;border-radius:1px}
+.legend .key i.dash{width:16px;height:0;border-radius:0;
+  border-top:2px dashed var(--neutral-mark)}
+button.tablebtn{font-family:var(--sans);font-size:11.5px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--muted);background:none;
+  border:1px solid var(--rule);border-radius:2px;padding:4px 10px;cursor:pointer;
+  transition:.2s;white-space:nowrap}
+button.tablebtn:hover{color:var(--ink);border-color:var(--rule-strong)}
+button.tablebtn[aria-pressed="true"]{background:var(--ink);color:var(--surface);
+  border-color:var(--ink)}
+/* Clicking a different characteristic replaces a whole block of numbers.
+   Without a mark of the change the table looks like it never moved. */
+.swap{animation:swap-in .26s var(--ease-out) both}
+@keyframes swap-in{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.tableview{display:none;margin-top:14px}
+.tableview.on{display:block}
+.tableview table{font-size:13px}
+/* SVG marks wear tokens through classes, so a theme swap repaints them */
+.grid-line{stroke:var(--grid);stroke-width:1}
+.axis-line{stroke:var(--axis);stroke-width:1}
+.tick{fill:var(--muted);font-family:var(--mono);font-size:10.5px}
+.tick-x{fill:var(--muted);font-family:var(--mono);font-size:10.5px;text-anchor:middle}
+.axis-title{fill:var(--muted);font-family:var(--sans);font-size:11px;text-anchor:middle}
+.s1-stroke{stroke:var(--series-1);fill:none;stroke-width:2;
+  stroke-linejoin:round;stroke-linecap:round}
+.s2-stroke{stroke:var(--series-2);fill:none;stroke-width:2;
+  stroke-linejoin:round;stroke-linecap:round}
+.s1-fill{fill:var(--series-1)}
+.s2-fill{fill:var(--series-2)}
+.s1-wash{fill:var(--series-1-wash)}
+.s2-wash{fill:var(--series-2-wash)}
+.ref-line{stroke:var(--neutral-mark);stroke-width:1.5;stroke-dasharray:5 4;fill:none}
+.ref-label{fill:var(--muted);font-family:var(--mono);font-size:10.5px}
+.cut-line{stroke:var(--ink);stroke-width:1;stroke-dasharray:4 3}
+.cut-label{fill:var(--ink);font-family:var(--mono);font-size:11px}
+.mark-ring{stroke:var(--surface);stroke-width:2}
+.hitbox{fill:transparent;cursor:crosshair}
+.crosshair{stroke:var(--ink);stroke-width:1;opacity:.35;pointer-events:none}
+.bar-mark{transform-box:fill-box;transform-origin:bottom;
+  transition:opacity .15s,transform .55s var(--ease-out) var(--d,0s)}
+.bar-mark.grow{transform:scaleY(0)}
+.fig:hover .bar-mark.dim{opacity:.45}
+.direct-label{fill:var(--ink);font-family:var(--mono);font-size:11px;font-weight:500}
+/* ---------- tooltip ---------- */
+/* Announced only for the keyboard path. Wired as a live region the tooltip
+   fired on every pointermove, which turns one chart into a few hundred
+   interruptions for a screen reader. */
+.sr-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;
+  overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+.tip{position:absolute;pointer-events:none;z-index:5;opacity:0;
+  transition:opacity .12s;background:var(--surface);border:1px solid var(--rule-strong);
+  box-shadow:var(--shadow);border-radius:3px;padding:9px 11px;font-size:12.5px;
+  min-width:132px;transform:translate(-50%,-100%)}
+.tip.on{opacity:1}
+.tip .t-head{font-family:var(--mono);font-size:11px;color:var(--muted);
+  margin-bottom:6px;letter-spacing:.04em}
+.tip .t-row{display:flex;align-items:baseline;gap:8px;margin-top:3px}
+.tip .t-row i{display:inline-block;width:14px;height:2px;border-radius:1px;flex:none;
+  transform:translateY(-3px)}
+/* value leads, series name follows */
+.tip .t-val{font-family:var(--mono);font-weight:600;color:var(--ink);
+  font-variant-numeric:tabular-nums;margin-left:auto}
+.tip .t-name{color:var(--muted);font-size:12px}
+.loader{position:fixed;inset:0;background:var(--paper);display:flex;
+  flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:9;
+  transition:opacity .5s}
+.loader .bar{width:190px;height:2px;background:var(--rule);overflow:hidden}
+.loader .bar i{display:block;height:2px;width:35%;background:var(--series-1);
+  animation:slide 1.1s infinite ease-in-out}
+@keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(300%)}}
+.loader p{font-family:var(--mono);font-size:12.5px;color:var(--muted);letter-spacing:.05em}
+.loader p.failed{font-family:var(--sans);font-size:15px;line-height:1.65;
+  letter-spacing:0;color:var(--ink-2);max-width:46ch;text-align:center;
+  border-left:2px solid var(--warn-mark);background:var(--surface);
+  padding:18px 22px;border-radius:0 3px 3px 0}
+.loader p.failed b{display:block;margin-bottom:6px;color:var(--ink)}
+.loader p.failed code{font-family:var(--mono);font-size:13px;
+  background:var(--paper);border:1px solid var(--rule);border-radius:2px;
+  padding:2px 6px;white-space:nowrap}
+.loader:has(p.failed) .bar{display:none}
+/* The cutoff tiles are the one set that changes while the reader drags.
+   Proportional figures would shuffle their own width on every frame. */
+#t8 .val{font-variant-numeric:tabular-nums}
+input[type=range]{cursor:grab}
+input[type=range]:active{cursor:grabbing}
+footer{padding:44px 0 0;font-size:13.5px;color:var(--muted)}
+footer a{color:var(--navy)}
+@media(max-width:960px){
+  .wrap{grid-template-columns:1fr;gap:0;padding:0 22px}
+  /* The step links go, but the theme toggle lived inside the rail too —
+     hiding the whole rail left the only control on the page unreachable on
+     a phone. Keep the rail as a bare strip and drop everything else. */
+  .rail{position:static;height:auto;padding:18px 0 0;flex-direction:row;
+    justify-content:flex-end}
+  .rail a,.rail .brand,.rail .marker{display:none}
+  .theme-toggle{margin-top:0}
+  h1{font-size:33px} h3{font-size:24px}
+  .verdict .big{font-size:32px}
+}
+@media print{
+  html.js-reveal .hero > *,
+  html.js-reveal section.step > *{opacity:1;transform:none}
+  .rail{display:none}
+}
+</style>
+</head>
+<body>
+<div class="loader" id="loader">
+  <div class="bar"><i></i></div>
+  <p id="loadmsg">building the scorecard…</p>
+</div>
+
+<div class="wrap">
+  <nav class="rail" id="rail">
+    <div class="brand">Scorecard</div>
+  </nav>
+
+  <main>
+    <div class="hero">
+      <div class="kicker">Quantum · project 03 · credit risk</div>
+      <h1>Turning a loan application into points</h1>
+      <p class="lede">A credit scorecard is the oldest working model in banking:
+      slice every question on the application form into bins, weigh each bin by
+      how much it separates the people who repay from the people who don't, and
+      add up the points. This page builds one end to end on 1,000 real German
+      loan applications — and then tries hard to prove it doesn't work.</p>
+      <div class="src" id="src"></div>
+    </div>
+
+    <section class="step" id="s1">
+      <h2><span class="num">01</span>The book</h2>
+      <h3>1,000 applications, and a cost of being wrong that isn't symmetric</h3>
+      <p>Every scorecard starts with a portfolio whose outcome is already known.
+      This one is the Statlog German Credit file: real applications, each labelled
+      <b>good</b> (repaid) or <b>bad</b> (defaulted). The split is what makes the
+      problem interesting — and so is the dataset's own cost matrix.</p>
+      <div class="tiles" id="t1"></div>
+      <div class="note"><b>The asymmetry that drives everything</b>
+      Lending to someone who defaults costs <b>five times</b> what turning away a
+      good customer costs. That single ratio, not accuracy, decides where the
+      approval line ends up — and it is why a model with a great AUC can still
+      lose money at the wrong cutoff.</div>
+    </section>
+
+    <section class="step" id="s2">
+      <h2><span class="num">02</span>Coarse classing</h2>
+      <h3>Every answer becomes a bin, every bin becomes a weight</h3>
+      <p>Raw answers are useless to a linear model: "purpose = radio/TV" isn't a
+      number, and "duration = 47 months" isn't linear in risk. So each
+      characteristic is <b>coarse-classed</b> into a handful of bins, and each bin
+      is replaced by its <b>Weight of Evidence</b>:</p>
+      <p class="mono" style="font-size:15px;color:var(--navy)">
+        WOE = ln( % of all goods in this bin ÷ % of all bads in this bin )</p>
+      <p>Positive WOE means the bin is <b>safer</b> than the book average, negative
+      means riskier. Numeric characteristics are binned so the bad rate moves in
+      one direction only — a scorecard that says risk rises, then falls, then rises
+      again with loan size is one no credit officer will sign.</p>
+      <div class="controls" id="c2"></div>
+      <div id="woe2"></div>
+      <div class="tbl-wrap" id="tb2"></div>
+    </section>
+
+    <section class="step" id="s3">
+      <h2><span class="num">03</span>Information Value</h2>
+      <h3>Which questions on the form are actually worth asking</h3>
+      <p>Summing a characteristic's bins into one number gives its <b>Information
+      Value</b> — how much the whole question separates good from bad. The industry
+      rule of thumb: under 0.02 is noise, 0.1–0.3 is a useful predictor, and above
+      0.5 you should go and check the data isn't leaking the answer.</p>
+      <div id="iv3"></div>
+      <div class="note warn"><b>Two characteristics are excluded on purpose</b>
+      <span id="prot3"></span></div>
+    </section>
+
+    <section class="step" id="s4">
+      <h2><span class="num">04</span>The model</h2>
+      <h3>Logistic regression, forward stepwise, and a sign rule</h3>
+      <p>The WOE-transformed characteristics go into a logistic regression on the
+      probability of going bad. Variables enter one at a time, keep only if they
+      stay significant, and must carry a <b>negative</b> coefficient: with this WOE
+      convention, safer evidence has to push the score up. A positive coefficient
+      means the multivariate fit has inverted the characteristic's meaning, and it
+      is thrown out no matter how significant it is.</p>
+      <div class="note" id="stab4"></div>
+      <div class="tbl-wrap" id="tb4"></div>
+    </section>
+
+    <section class="step" id="s5">
+      <h2><span class="num">05</span>The scorecard</h2>
+      <h3>From log-odds to points a branch can add up by hand</h3>
+      <p>The regression outputs log-odds. A scorecard outputs points, calibrated so
+      that a fixed number of points always means the same thing: here
+      <b id="pdo5"></b> points doubles the odds of repaying, and
+      <b id="base5"></b> points is defined as odds of <b id="odds5"></b> good to
+      one bad.</p>
+      <div class="tbl-wrap" id="scale5"></div>
+      <p class="small">Every bin's points come out of the same identity, so the
+      characteristics simply add up:
+      <span class="mono">points = −(β·WOE + α/n) × factor + offset/n</span>.</p>
+      <div class="controls" id="c5"></div>
+      <div class="tbl-wrap" id="tb5"></div>
+    </section>
+
+    <section class="step" id="s6">
+      <h2><span class="num">06</span>Underwriting</h2>
+      <h3>Score an applicant</h3>
+      <p>This is what the model is <em>for</em>. Fill in an application and the
+      scorecard adds it up exactly the way the printed table above says it will —
+      no hidden layer, no black box, and every point traceable to one answer.</p>
+      <div class="card">
+        <h4>Application</h4>
+        <p class="hint">Presets load a real record from the holdout sample.</p>
+        <div class="controls" id="presets6"></div>
+        <div class="form-grid" id="form6"></div>
+      </div>
+      <div class="tbl-wrap" id="tb6"></div>
+      <div class="verdict" id="v6"></div>
+    </section>
+
+    <section class="step" id="s7">
+      <h2><span class="num">07</span>Validation</h2>
+      <h3>Now try to prove it doesn't work</h3>
+      <p>Thirty percent of the applications were held out before anything was
+      binned. Everything below is measured on that holdout — and, because 700
+      training rows is a small book, also across 25 resamples that rebuild the
+      <em>entire</em> pipeline from scratch each time.</p>
+      <div class="tiles" id="t7"></div>
+      <div class="note" id="cv7"></div>
+      <h4 style="margin:34px 0 6px;font-size:15px">Score distributions on the holdout</h4>
+      <p class="small">The gap between these two curves is the whole product.</p>
+      <div id="dist7"></div>
+      <h4 style="margin:34px 0 6px;font-size:15px">Calibration by score band</h4>
+      <p class="small">Discrimination ranks people; calibration says whether the
+      predicted default rate is the truth. Pricing needs both.</p>
+      <div id="cal7"></div>
+      <h4 style="margin:34px 0 6px;font-size:15px">Challengers</h4>
+      <p class="small">A scorecard is chosen for interpretability. The fair
+      question is what that choice costs against models with no such constraint.</p>
+      <div class="tbl-wrap" id="ch7"></div>
+    </section>
+
+    <section class="step" id="s8">
+      <h2><span class="num">08</span>The cutoff</h2>
+      <h3>Where to draw the line, and what it costs to draw it wrong</h3>
+      <p>A score is not a decision. The decision is a cutoff, and under a 5:1 cost
+      matrix it sits far higher than intuition suggests. Drag the line and watch
+      the trade: approve more, earn more volume, buy more defaults.</p>
+      <div class="card">
+        <label class="f" for="cut8">Cutoff score</label>
+        <input type="range" id="cut8">
+        <div class="tiles" id="t8" style="margin-bottom:0"></div>
+      </div>
+      <div id="cost8"></div>
+      <div class="note" id="honest8"></div>
+    </section>
+
+    <section class="step" id="s9">
+      <h2><span class="num">09</span>Fairness</h2>
+      <h3>Not using an attribute is not the same as not acting on it</h3>
+      <p>Sex and nationality never enter the model. That is necessary and it is not
+      sufficient: other characteristics can proxy for them, and the only way to know
+      is to measure outcomes for the groups you refused to score. The classic test
+      is the four-fifths rule — if one group's approval rate falls below 80% of
+      another's, that is an adverse-impact flag worth explaining.</p>
+      <div id="fair9"></div>
+    </section>
+
+    <footer>
+      <p class="small">Data: Statlog German Credit (UCI), 1,000 applications
+      contributed by Prof. Hans Hofmann, Universität Hamburg. Amounts are in
+      Deutsche Mark; the file predates the euro. Model built with numpy, pandas and
+      statsmodels; the charts on this page are hand-rolled SVG. Nothing here is
+      credit advice, and a 1,000-row book would never be enough to deploy a real
+      scorecard — the point is the method.</p>
+    </footer>
+  </main>
+</div>
+
+<script>
+const RAIL = [["s1","The book"],["s2","Coarse classing"],["s3","Information Value"],
+  ["s4","The model"],["s5","The scorecard"],["s6","Underwriting"],
+  ["s7","Validation"],["s8","The cutoff"],["s9","Fairness"]];
+let D = null, CURRENT = null, CUT = null;
+let LAST_SCORE = null, LAST_DECISION = null;
+
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+/* Work queued against a section, run the moment that section is revealed.
+   Charts are built before the reader has scrolled to them; playing their
+   entrance at build time would spend it off-screen. */
+const ON_REVEAL = {};
+const onReveal = (sec, fn) => (ON_REVEAL[sec] = ON_REVEAL[sec] || []).push(fn);
+
+/* Plays marks in from a collapsed state.
+
+   The collapsed state is applied HERE and removed on the next frame — it is
+   never written into the markup. A bar that this function never reaches is
+   already at its final size, so no number on this page is ever waiting on an
+   animation to become visible. */
+function playIn(els, stagger){
+  els = [...els];
+  if(!els.length || REDUCED) return;
+  els.forEach((el,i) => {
+    el.style.transition = "none";
+    el.style.setProperty("--d", (i*(stagger||0)) + "ms");
+    el.classList.add("grow");
+  });
+  els[0].getBoundingClientRect();                 // commit the collapsed state
+  requestAnimationFrame(() => els.forEach(el => {
+    el.style.transition = "";
+    el.classList.remove("grow");
+  }));
+}
+/* Line charts draw themselves along their own path. Only the data strokes:
+   the dashed reference lines already own their stroke-dasharray, and the
+   axes are furniture. Everything is handed back afterwards so a theme swap
+   or a redraw finds a clean element. */
+function drawIn(figId, ms){
+  if(REDUCED) return;
+  const svg = document.getElementById(figId + "-svg");
+  if(!svg) return;
+  svg.querySelectorAll(".s1-wash,.s2-wash").forEach((w,i) => {
+    w.style.transition = "none"; w.style.opacity = "0";
+    w.getBoundingClientRect();
+    w.style.transition = `opacity ${ms}ms var(--ease-out) ${120 + i*90}ms`;
+    w.style.opacity = "";
+  });
+  [...svg.querySelectorAll(".s1-stroke,.s2-stroke")].forEach((path,i) => {
+    let len = 0;
+    try{ len = path.getTotalLength(); }catch(e){ return; }
+    if(!Number.isFinite(len) || len <= 0) return;
+    const delay = i*150;
+    path.style.transition = "none";
+    path.style.strokeDasharray = len;
+    path.style.strokeDashoffset = len;
+    path.getBoundingClientRect();
+    path.style.transition = `stroke-dashoffset ${ms}ms var(--ease-out) ${delay}ms`;
+    path.style.strokeDashoffset = "0";
+    setTimeout(() => {
+      path.style.transition = "";
+      path.style.strokeDasharray = "";
+      path.style.strokeDashoffset = "";
+    }, ms + delay + 80);
+  });
+}
+/* A redraw replays its bars only once the step has been revealed. Before
+   that the reveal hook owns the entrance, and playing both would collapse
+   the bars halfway through their own animation. */
+function replay(secId, sel, stagger){
+  const sec = document.getElementById(secId);
+  if(sec && sec.classList.contains("in")) playIn(document.querySelectorAll(sel), stagger);
+}
+/* The score jumps when a preset is loaded and creeps when a single field is
+   edited. Counting suits the jump and fights the creep: at one keystroke every
+   few frames a count-up never arrives, and the reader watches a number that is
+   permanently slightly wrong. So it runs on a jump and not otherwise. */
+function countTo(el, from, to){
+  if(!el) return;
+  if(REDUCED || from === null || Math.abs(to - from) < 15){
+    el.textContent = to; return;
+  }
+  const t0 = performance.now(), dur = 440;
+  const step = now => {
+    const k = Math.min(1, (now - t0) / dur);
+    el.textContent = Math.round(from + (to - from) * (1 - Math.pow(1 - k, 3)));
+    if(k < 1) requestAnimationFrame(step); else el.textContent = to;
+  };
+  requestAnimationFrame(step);
+}
+/* Re-runs the swap keyframe on a block whose contents were just replaced. */
+function markSwapped(...ids){
+  if(REDUCED) return;
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.classList.remove("swap");
+    el.getBoundingClientRect();
+    el.classList.add("swap");
+  });
+}
+
+const pct = (v,d=1) => (v*100).toFixed(d) + "%";
+const num = (v,d=2) => Number(v).toFixed(d);
+const esc = s => String(s).replace(/[&<>"]/g, c =>
+  ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---------------- rail ---------------- */
+const SUN = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+  stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/>
+  <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>`;
+const MOON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+  stroke="currentColor" stroke-width="2" aria-hidden="true">
+  <path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg>`;
+function currentTheme(){
+  return document.documentElement.getAttribute("data-theme")
+    || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+}
+function paintToggle(btn){
+  const dark = currentTheme() === "dark";
+  btn.innerHTML = (dark ? SUN : MOON) +
+    `<span>${dark ? "Light" : "Dark"} theme</span>`;
+  btn.setAttribute("aria-label",
+    `Switch to ${dark ? "light" : "dark"} theme`);
+}
+function buildRail(){
+  const r = document.getElementById("rail");
+  const marker = document.createElement("div");
+  marker.className = "marker";
+  marker.setAttribute("aria-hidden", "true");
+  r.appendChild(marker);
+  RAIL.forEach(([id,label],i) => {
+    const a = document.createElement("a");
+    a.href = "#" + id;
+    a.innerHTML = `<span class="n">${String(i+1).padStart(2,"0")}</span>
+      <span>${label}</span>`;
+    a.dataset.target = id;
+    r.appendChild(a);
+  });
+  const btn = document.createElement("button");
+  btn.className = "theme-toggle";
+  btn.type = "button";
+  paintToggle(btn);
+  btn.addEventListener("click", () => {
+    document.documentElement.setAttribute("data-theme",
+      currentTheme() === "dark" ? "light" : "dark");
+    paintToggle(btn);
+    // the SVG marks read CSS tokens, so nothing needs redrawing
+  });
+  r.appendChild(btn);
+}
+
+/* ---------------- step 1 ---------------- */
+function step1(){
+  const m = D.meta;
+  document.getElementById("src").textContent =
+    `Statlog German Credit · ${m.n_total} applications · `
+    + `${m.n_train} train / ${m.n_test} holdout · seed ${m.seed}`;
+  tiles("t1", [
+    ["Applications", m.n_total.toLocaleString("en-US"), "1 row = 1 loan decision"],
+    ["Bad rate", pct(m.bad_rate), "defaulted on the loan", "risk"],
+    ["Characteristics", 20, "questions on the form"],
+    ["Cost of a bad loan", m.cost_false_good + "×", "vs. rejecting a good one", "accent"],
+  ]);
+}
+function tiles(id, rows){
+  document.getElementById(id).innerHTML = rows.map(([lab,val,sub,cls]) =>
+    `<div class="tile ${cls||""}"><div class="lab">${lab}</div>
+     <div class="val">${val}</div><div class="sub">${sub||""}</div></div>`).join("");
+}
+
+/* ---------------- step 2 ---------------- */
+function step2(){
+  const order = D.iv_ranking.map(r => r.column).slice(0,8)
+    .concat(["personal_status_sex"]);
+  document.getElementById("c2").innerHTML = order.map((c,i) => {
+    const b = D.binning_all[c];
+    return `<button class="chip ${b.protected?"prot":""} ${i===0?"on":""}"
+      data-col="${c}">${esc(b.pretty)}</button>`;
+  }).join("");
+  document.querySelectorAll("#c2 .chip").forEach(btn =>
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#c2 .chip").forEach(b => b.classList.remove("on"));
+      btn.classList.add("on");
+      drawWoe(btn.dataset.col);
+      markSwapped("woe2","tb2");
+    }));
+  drawWoe(order[0]);
+  onReveal("s2", () => playIn(document.querySelectorAll("#woe2 .woe-bar"), 45));
+}
+function drawWoe(col){
+  const b = D.binning_all[col];
+  const max = Math.max(...b.bins.map(x => Math.abs(x.woe)), .5);
+  document.getElementById("woe2").innerHTML = b.bins.map((x,i) => {
+    const w = Math.abs(x.woe) / max * 48;
+    // Both poles hang off the zero line — positive from its left edge,
+    // negative from its right — so each grows away from zero.
+    const cls = x.woe >= 0 ? "pos" : "neg";
+    return `<div class="woe-row">
+      <div class="lbl">${esc(x.label)}</div>
+      <div class="woe-axis"><div class="zero"></div>
+        <div class="woe-bar ${cls}" style="width:${w}%"></div></div>
+      <div class="woe-meta">WOE ${x.woe>=0?"+":""}${num(x.woe)}</div>
+    </div>`;
+  }).join("");
+  document.getElementById("tb2").innerHTML = `<table><thead><tr>
+    <th>Bin</th><th class="num">n</th><th class="num">bads</th>
+    <th class="num">bad rate</th><th class="num">WOE</th><th class="num">IV part</th>
+    </tr></thead><tbody>` + b.bins.map(x => `<tr>
+      <td>${esc(x.label)}</td><td class="num">${x.count}</td>
+      <td class="num">${x.bads}</td><td class="num">${pct(x.bad_rate)}</td>
+      <td class="num">${x.woe>=0?"+":""}${num(x.woe)}</td>
+      <td class="num">${num(x.iv,4)}</td></tr>`).join("")
+    + `<tr class="total"><td>Information Value</td><td class="num"></td>
+       <td class="num"></td><td class="num"></td><td class="num"></td>
+       <td class="num">${num(b.iv,4)}</td></tr></tbody></table>
+    <p class="small" style="margin-top:10px">${esc(b.pretty)} — IV
+      ${num(b.iv,4)} (${b.strength})${b.protected
+        ? ' · <span class="tag no">excluded by policy</span>'
+        : (b.in_model ? ' · <span class="tag in">in the scorecard</span>'
+                      : ' · <span class="tag out">not selected</span>')}</p>`;
+  replay("s2", "#woe2 .woe-bar", 45);
+}
+
+/* ---------------- step 3 ---------------- */
+function step3(){
+  const rows = D.iv_ranking;
+  const max = Math.max(...rows.map(r => r.iv));
+  document.getElementById("iv3").innerHTML = rows.map(r => `
+    <div class="bar-row">
+      <div class="lbl">${esc(r.pretty)} ${r.in_model
+        ? '<span class="tag in">in</span>' : ''}</div>
+      <div class="bar-track"><div class="bar-fill"
+        style="width:${(r.iv/max*100).toFixed(2)}%"></div></div>
+      <div class="v">${num(r.iv,3)}</div>
+    </div>`).join("");
+  onReveal("s3", () => playIn(document.querySelectorAll("#iv3 .bar-fill"), 26));
+  const p = Object.values(D.excluded_protected);
+  document.getElementById("prot3").innerHTML =
+    `Personal status/sex (IV ${num(p.find(x=>x.pretty.includes("Personal")).iv,3)})
+     and foreign-worker status (IV
+     ${num(p.find(x=>x.pretty.includes("Foreign")).iv,3)}) both carry signal, and
+     both are protected characteristics. A lender may not price on sex or
+     nationality, so they never enter the model — but they are kept in the file so
+     the finished scorecard can be audited against them in step 09.`;
+}
+
+/* ---------------- step 4 ---------------- */
+function step4(){
+  const d = D.dropped_for_instability;
+  document.getElementById("stab4").innerHTML = d.length
+    ? `<b>Stability selection</b>Forward stepwise on 700 rows is a lottery: rerun
+       it on a resample and the shortlist changes. So the whole pipeline was rebuilt
+       25 times <em>inside the training set</em>, and any characteristic surviving
+       fewer than half the resamples was dropped — here
+       ${d.map(x => `<b>${esc(x.pretty)}</b> (chosen ${pct(x.frequency,0)} of the
+       time)`).join(", ")}. The holdout never saw this decision.`
+    : `<b>Stability selection</b>The pipeline was rebuilt 25 times inside the
+       training set; every selected characteristic survived at least half the
+       resamples.`;
+  const m = D.model;
+  document.getElementById("tb4").innerHTML = `<table><thead><tr>
+    <th>Characteristic</th><th class="num">β</th><th class="num">std. err</th>
+    <th class="num">p-value</th><th class="num">chosen in</th></tr></thead><tbody>`
+    + m.terms.map(t => `<tr>
+      <td>${esc(t.pretty)}</td><td class="num">${num(t.coefficient,3)}</td>
+      <td class="num">${num(t.std_err,3)}</td>
+      <td class="num">${t.p_value < 0.001 ? "&lt;0.001" : num(t.p_value,3)}</td>
+      <td class="num">${pct(D.cross_validation.selection_frequency[t.column]||0,0)}</td>
+      </tr>`).join("")
+    + `<tr class="dim"><td>intercept</td><td class="num">${num(m.intercept,3)}</td>
+       <td class="num"></td><td class="num"></td><td class="num"></td></tr>
+       </tbody></table>
+    <p class="small" style="margin-top:10px">McFadden pseudo-R²
+      ${num(m.pseudo_r2,3)} · every β is negative, as the sign rule demands.</p>`;
+}
+
+/* ---------------- step 5 ---------------- */
+function step5(){
+  const m = D.meta;
+  document.getElementById("pdo5").textContent = m.pdo;
+  document.getElementById("base5").textContent = m.base_score;
+  document.getElementById("odds5").textContent = m.base_odds;
+  document.getElementById("scale5").innerHTML = `<table><thead><tr>
+    <th>Scaling constant</th><th class="num">value</th><th>meaning</th>
+    </tr></thead><tbody>
+    <tr><td>PDO</td><td class="num">${m.pdo}</td>
+      <td>points to double the good:bad odds</td></tr>
+    <tr><td>factor = PDO / ln 2</td><td class="num">${num(m.factor,3)}</td>
+      <td>points per unit of log-odds</td></tr>
+    <tr><td>offset</td><td class="num">${num(m.offset,3)}</td>
+      <td>anchors ${m.base_score} points at ${m.base_odds}:1 odds</td></tr>
+    <tr class="total"><td>Attainable range</td>
+      <td class="num">${D.score_range.min}–${D.score_range.max}</td>
+      <td>worst to best possible application</td></tr>
+    </tbody></table>`;
+  const cols = D.selected;
+  document.getElementById("c5").innerHTML = cols.map((c,i) =>
+    `<button class="chip ${i===0?"on":""}" data-col="${c}">
+      ${esc(D.scorecard[c].pretty)}</button>`).join("");
+  document.querySelectorAll("#c5 .chip").forEach(btn =>
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#c5 .chip").forEach(b => b.classList.remove("on"));
+      btn.classList.add("on");
+      drawCard(btn.dataset.col);
+      markSwapped("tb5");
+    }));
+  drawCard(cols[0]);
+  onReveal("s5", () => playIn(document.querySelectorAll("#tb5 .bar-fill"), 40));
+}
+function drawCard(col){
+  const e = D.scorecard[col];
+  const max = Math.max(...e.rows.map(r => r.points));
+  document.getElementById("tb5").innerHTML = `<table><thead><tr>
+    <th>${esc(e.pretty)}</th><th class="num">n</th><th class="num">bad rate</th>
+    <th class="num">WOE</th><th style="width:34%">points</th>
+    <th class="num">pts</th></tr></thead><tbody>`
+    + e.rows.map(r => `<tr>
+      <td>${esc(r.bin)}</td><td class="num">${r.count}</td>
+      <td class="num">${pct(r.bad_rate)}</td>
+      <td class="num">${r.woe>=0?"+":""}${num(r.woe)}</td>
+      <td><div class="bar-track"><div class="bar-fill"
+        style="width:${r.points/max*100}%"></div></div></td>
+      <td class="num">${r.points}</td></tr>`).join("")
+    + `</tbody></table>
+    <p class="small" style="margin-top:10px">β = ${num(e.coefficient,3)} ·
+      IV = ${num(e.iv,3)} · spread within this characteristic:
+      ${Math.max(...e.rows.map(r=>r.points)) - Math.min(...e.rows.map(r=>r.points))}
+      points.</p>`;
+  replay("s5", "#tb5 .bar-fill", 40);
+}
+
+/* ---------------- step 6 ---------------- */
+/* A status colour never carries the meaning on its own: the chip is
+   icon + word + colour. */
+const OK_ICON = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+  stroke="currentColor" stroke-width="2.4" stroke-linecap="round"
+  stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>`;
+const NO_ICON = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+  stroke="currentColor" stroke-width="2.4" stroke-linecap="round"
+  aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>`;
+/* Returns null when the answer cannot be placed — a blank field must not be
+   scored as if it were an answer, least of all as the safest one. */
+function binFor(col, value){
+  const spec = D.binning_spec[col];
+  if(spec.kind === "numeric"){
+    const v = parseFloat(value);
+    if(!Number.isFinite(v)) return null;
+    return spec.bins.find(b =>
+      (b.lo === null || v > b.lo) && (b.hi === null || v <= b.hi)) || null;
+  }
+  return spec.bins.find(b => b.levels.includes(value)) || null;
+}
+function step6(){
+  const f = document.getElementById("form6");
+  f.innerHTML = D.selected.map(col => {
+    const spec = D.binning_spec[col];
+    if(spec.kind === "numeric"){
+      const r = D.numeric_ranges[col];
+      return `<div><label class="f" for="i_${col}">${esc(spec.pretty)}</label>
+        <input type="number" id="i_${col}" data-col="${col}"
+          value="${Math.round(r.median)}"
+          min="${Math.floor(r.min)}" max="${Math.ceil(r.max)}" step="1"></div>`;
+    }
+    return `<div><label class="f" for="i_${col}">${esc(spec.pretty)}</label>
+      <select id="i_${col}" data-col="${col}">${
+        D.raw_levels[col].map(l => `<option value="${esc(l)}">${esc(l)}</option>`
+        ).join("")}</select></div>`;
+  }).join("");
+  f.addEventListener("input", scoreApplicant);
+  document.getElementById("presets6").innerHTML = `
+    <button class="chip on" data-preset="typical">Most common answers</button>
+    <button class="chip" data-preset="strong">Strong file</button>
+    <button class="chip" data-preset="weak">Weak file</button>`;
+  document.querySelectorAll("#presets6 .chip").forEach(btn =>
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#presets6 .chip").forEach(b =>
+        b.classList.remove("on"));
+      btn.classList.add("on");
+      applyPreset(btn.dataset.preset);
+    }));
+  applyPreset("typical");
+}
+function applyPreset(kind){
+  D.selected.forEach(col => {
+    const el = document.getElementById("i_" + col);
+    const spec = D.binning_spec[col];
+    if(spec.kind === "numeric"){
+      const r = D.numeric_ranges[col];
+      if(kind === "typical"){ el.value = Math.round(r.median); }
+      else {
+        // best / worst bin by points, then a value inside it
+        const bins = [...spec.bins].sort((a,b) => b.points - a.points);
+        const b = kind === "strong" ? bins[0] : bins[bins.length-1];
+        const lo = b.lo === null ? r.min : b.lo;
+        const hi = b.hi === null ? r.max : b.hi;
+        el.value = Math.round((Math.max(lo, r.min) + Math.min(hi, r.max)) / 2);
+      }
+    } else {
+      if(kind === "typical"){
+        const big = [...spec.bins].sort((a,b) => b.count - a.count)[0];
+        el.value = big.levels[0];
+      } else {
+        const bins = [...spec.bins].sort((a,b) => b.points - a.points);
+        const b = kind === "strong" ? bins[0] : bins[bins.length-1];
+        el.value = b.levels[0];
+      }
+    }
+  });
+  scoreApplicant();
+}
+function scoreApplicant(){
+  let total = 0;
+  const missing = [];
+  const rows = D.selected.map(col => {
+    const el = document.getElementById("i_" + col);
+    const b = binFor(col, el.value);
+    if(b === null) missing.push(D.binning_spec[col].pretty);
+    else total += b.points;
+    return {pretty: D.binning_spec[col].pretty, value: el.value,
+            bin: b ? b.label : "—", points: b ? b.points : null,
+            bad_rate: b ? b.bad_rate : null};
+  });
+  document.getElementById("tb6").innerHTML = `<table><thead><tr>
+    <th>Characteristic</th><th>Answer</th><th>Falls in bin</th>
+    <th class="num">bin bad rate</th><th class="num">points</th>
+    </tr></thead><tbody>`
+    + rows.map(r => `<tr${r.points===null?' class="dim"':''}>
+        <td>${esc(r.pretty)}</td>
+        <td>${r.value === "" ? "<i>not answered</i>" : esc(r.value)}</td>
+        <td class="mono" style="font-size:13px">${esc(r.bin)}</td>
+        <td class="num">${r.bad_rate===null ? "—" : pct(r.bad_rate)}</td>
+        <td class="num">${r.points===null ? "—" : r.points}</td></tr>`).join("")
+    + `<tr class="total"><td>Total score</td><td></td><td></td><td></td>
+       <td class="num">${missing.length ? "—" : total}</td></tr></tbody></table>`;
+  if(missing.length){
+    document.getElementById("v6").innerHTML = `
+      <div><div class="lab">Score</div><div class="big">—</div></div>
+      <div><div class="lab">Application incomplete</div>
+        <div class="decision decline">${NO_ICON} CANNOT SCORE</div></div>
+      <div class="small" style="flex:1;margin:0">No answer for
+        ${missing.map(esc).join(", ")}. A blank is not a low-risk answer, so the
+        scorecard refuses to score the file rather than quietly filling the
+        gap.</div>`;
+    LAST_SCORE = null; LAST_DECISION = null;
+    return;
+  }
+  const m = D.meta;
+  const lnOdds = (total - m.offset) / m.factor;
+  const odds = Math.exp(lnOdds);
+  const pd = 1 / (1 + odds);
+  const oddsTxt = odds >= 1
+    ? `${num(odds,1)}<span style="font-size:18px">:1</span>`
+    : `1<span style="font-size:18px">:</span>${num(1/odds,1)}`;
+  const cut = CUT === null ? D.best_cutoff.cutoff : CUT;
+  const ok = total >= cut;
+  const seen = D.score_distribution.goods.concat(D.score_distribution.bads);
+  const outside = total < Math.min(...seen) || total > Math.max(...seen);
+  document.getElementById("v6").innerHTML = `
+    <div><div class="lab">Score</div><div class="big">${total}</div></div>
+    <div><div class="lab">Odds of repaying</div>
+      <div class="big">${oddsTxt}</div></div>
+    <div><div class="lab">Probability of default</div>
+      <div class="big" style="color:${pd>0.3?"var(--crit)":"var(--ok)"}">
+        ${pct(pd)}</div></div>
+    <div><div class="lab">Policy cutoff ${cut}</div>
+      <div class="decision ${ok?"approve":"decline"}">${ok ? OK_ICON : NO_ICON}
+        ${ok ? "APPROVE" : "DECLINE"}</div></div>`
+    + (outside ? `<div class="small" style="flex-basis:100%;margin:0;
+        color:var(--warn)">This file scores outside the range anyone in the
+        holdout actually reached (${Math.round(Math.min(...seen))}–${Math.round(
+        Math.max(...seen))}). The decision is safe; the probability is an
+        extrapolation of the scaling formula, not something the data
+        confirms.</div>` : "");
+  countTo(document.querySelector("#v6 .big"), LAST_SCORE, total);
+  LAST_SCORE = total;
+  // The verdict is rebuilt on every frame of a cutoff drag, so the chip only
+  // marks itself when the decision genuinely turned over.
+  const chip = document.querySelector("#v6 .decision");
+  if(chip && LAST_DECISION !== null && LAST_DECISION !== ok && !REDUCED)
+    chip.classList.add("flip");
+  LAST_DECISION = ok;
+}
+
+/* ---------------- figure scaffolding ----------------
+   Every chart ships the same three things: the plot, a legend (always
+   present at two or more series), and a table view holding the same
+   numbers — so no value is ever gated behind a hover. */
+function figure(id, opts){
+  const el = document.getElementById(id);
+  el.innerHTML = `<figure class="fig" id="${id}-fig">
+    <div class="fig-head">
+      <div class="legend" id="${id}-legend">${opts.legend || ""}</div>
+      <button class="tablebtn" type="button" aria-pressed="false"
+        aria-controls="${id}-table" id="${id}-tbtn">Table</button>
+    </div>
+    ${opts.svg}
+    <div class="tip" id="${id}-tip" aria-hidden="true"></div>
+    <div class="sr-live" id="${id}-sr" role="status" aria-live="polite"></div>
+    <div class="tableview" id="${id}-table">${opts.table || ""}</div>
+  </figure>`;
+  const btn = document.getElementById(id + "-tbtn");
+  const tv = document.getElementById(id + "-table");
+  btn.addEventListener("click", () => {
+    const on = tv.classList.toggle("on");
+    btn.setAttribute("aria-pressed", String(on));
+    btn.textContent = on ? "Hide table" : "Table";
+  });
+  return el;
+}
+/* Axis ticks land on clean numbers — they carry every value the chart
+   does not direct-label, and 17% / 9% / 91% are not numbers anyone reads. */
+function niceTicks(max, target){
+  const raw = max / (target || 4);
+  const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = [1, 2, 2.5, 5, 10].map(m => m*mag).find(v => v >= raw) || 10*mag;
+  const out = [];
+  for(let v = 0; v <= max + 1e-9; v += step) out.push(+v.toFixed(10));
+  return out;
+}
+function keyLine(cls, label){
+  return `<span class="key"><i class="line" style="background:var(--${cls})"></i>
+    ${esc(label)}</span>`;
+}
+function keyRect(cls, label){
+  return `<span class="key"><i style="background:var(--${cls})"></i>
+    ${esc(label)}</span>`;
+}
+/* Series names and category labels are data — build tooltip DOM with
+   textContent, never by concatenating HTML. */
+function showTip(id, x, y, head, rows){
+  const tip = document.getElementById(id + "-tip");
+  tip.textContent = "";
+  const h = document.createElement("div");
+  h.className = "t-head";
+  h.textContent = head;
+  tip.appendChild(h);
+  rows.forEach(r => {
+    const row = document.createElement("div");
+    row.className = "t-row";
+    if(r.color){
+      const i = document.createElement("i");
+      i.style.background = `var(--${r.color})`;
+      row.appendChild(i);
+    }
+    const n = document.createElement("span");
+    n.className = "t-name";
+    n.textContent = r.name;
+    const v = document.createElement("span");
+    v.className = "t-val";
+    v.textContent = r.value;
+    row.appendChild(n); row.appendChild(v);
+    tip.appendChild(row);
+  });
+  const fig = document.getElementById(id + "-fig").getBoundingClientRect();
+  tip.style.left = Math.max(72, Math.min(fig.width - 72, x)) + "px";
+  tip.style.top = Math.max(46, y - 12) + "px";
+  tip.classList.add("on");
+}
+function hideTip(id){ document.getElementById(id + "-tip").classList.remove("on"); }
+/* Spoken only when the reader drove here with the keyboard. */
+function srSay(id, text){
+  const el = document.getElementById(id + "-sr");
+  if(el) el.textContent = text;
+}
+/* svg px -> figure px, so the tooltip lands on the mark at any width */
+function tipXY(svg, sx, sy){
+  const r = svg.getBoundingClientRect();
+  const vb = svg.viewBox.baseVal;
+  const fig = svg.closest(".fig").getBoundingClientRect();
+  return [r.left - fig.left + sx / vb.width * r.width,
+          r.top - fig.top + sy / vb.height * r.height];
+}
+
+/* ---------------- step 7 ---------------- */
+function step7(){
+  const p = D.performance, cv = D.cross_validation;
+  tiles("t7", [
+    ["Holdout Gini", num(p.test.gini,3), `AUC ${num(p.test.auc,3)}`, "accent"],
+    ["Holdout KS", num(p.test.ks,3), "max good/bad separation", "accent"],
+    ["Train Gini", num(p.train.gini,3), "the gap is the overfit"],
+    ["PSI train vs holdout", num(p.psi_train_vs_test,3),
+      p.psi_train_vs_test < 0.1 ? "stable (<0.10)" : "shifted",
+      p.psi_train_vs_test < 0.1 ? "safe" : "risk"],
+  ]);
+  document.getElementById("cv7").innerHTML = `<b>One number is not a result</b>
+    Rebuilding the full pipeline — binning, selection, fit — on ${cv.n_fits}
+    resamples of the training set gives a Gini of <b>${num(cv.gini_mean,3)} ±
+    ${num(cv.gini_std,3)}</b>, with a 90% range of
+    <b>${num(cv.gini_p05,3)} to ${num(cv.gini_p95,3)}</b>. The holdout Gini of
+    ${num(p.test.gini,3)} sits inside that range, which is the only reason to
+    trust it. On a book of 1,000 applications, quoting a single decimal of Gini
+    without this interval would be theatre.`;
+  drawDist();
+  drawCalibration();
+  document.getElementById("ch7").innerHTML = `<table><thead><tr>
+    <th>Model</th><th class="num">holdout AUC</th><th>interpretable?</th>
+    </tr></thead><tbody>
+    <tr><td><b>Scorecard (WOE + logistic)</b></td>
+      <td class="num"><b>${num(p.test.auc,4)}</b></td>
+      <td><span class="tag ok">points table</span></td></tr>`
+    + D.challengers.map(c => `<tr><td>${esc(c.model)}</td>
+        <td class="num">${num(c.test_auc,4)}</td>
+        <td><span class="tag ${c.model.includes("boosting")?"no":"out"}">
+          ${c.model.includes("boosting") ? "no" : "coefficients only"}</span></td>
+      </tr>`).join("")
+    + `</tbody></table>
+    <p class="small" style="margin-top:10px">On a book this small the scorecard
+    isn't giving anything up — coarse classing regularises hard, which is exactly
+    where gradient boosting has the least room to win. On a million-row book that
+    ordering would very likely flip, and the honest reason to keep the scorecard
+    would be the points table, not the AUC.</p>`;
+}
+
+/* Two density curves: a 2px stroke over a ~13% wash of its own hue.
+   One mark per series — no bars underneath doing the same job twice. */
+function distModel(){
+  const g = D.score_distribution.goods, b = D.score_distribution.bads;
+  const all = g.concat(b);
+  const lo = Math.min(...all), hi = Math.max(...all), nb = 20;
+  const step = (hi - lo) / nb;
+  const count = arr => {
+    const h = new Array(nb).fill(0);
+    arr.forEach(v => h[Math.min(nb-1, Math.floor((v-lo)/step))]++);
+    return h;
+  };
+  const cg = count(g), cb = count(b);
+  return {lo, hi, nb, step, cg, cb,
+          dg: cg.map(c => c/g.length), db: cb.map(c => c/b.length)};
+}
+function drawDist(){
+  const m = distModel();
+  const W = 760, H = 260, PL = 46, PR = 18, PT = 22, PB = 42;
+  const peak = Math.max(...m.dg, ...m.db) * 1.1;
+  const x = i => PL + (i + 0.5) / m.nb * (W - PL - PR);
+  const y = v => H - PB - (v / peak) * (H - PT - PB);
+  const line = h => "M" + h.map((v,i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join("L");
+  const area = h => line(h) + `L${x(m.nb-1).toFixed(1)},${H-PB}L${x(0).toFixed(1)},${H-PB}Z`;
+  const cut = CUT === null ? D.best_cutoff.cutoff : CUT;
+  const cx = PL + ((cut - m.lo)/(m.hi - m.lo)) * (W - PL - PR);
+  const yt = niceTicks(peak, 4);
+  window.__dist = {PL, PR, W, lo: m.lo, hi: m.hi};
+
+  const svg = `<svg viewBox="0 0 ${W} ${H}" id="dist7-svg" role="img"
+    aria-label="Score distribution of good and bad accounts on the holdout, with the policy cutoff marked">
+    ${yt.map(v => `<line class="grid-line" x1="${PL}" y1="${y(v)}" x2="${W-PR}" y2="${y(v)}"/>
+      <text class="tick" x="${PL-8}" y="${y(v)+4}" text-anchor="end">${pct(v,0)}</text>`).join("")}
+    <path class="s1-wash" d="${area(m.dg)}"/>
+    <path class="s2-wash" d="${area(m.db)}"/>
+    <path class="s1-stroke" d="${line(m.dg)}"/>
+    <path class="s2-stroke" d="${line(m.db)}"/>
+    <line class="cut-line" id="dist7-cutline" x1="${cx}" y1="${PT-14}" x2="${cx}" y2="${H-PB}"/>
+    <text class="cut-label" id="dist7-cutlabel" x="${cx-7}" y="${PT-4}"
+      text-anchor="end">cutoff ${cut}</text>
+    <text class="ref-label" id="dist7-declabel" x="${cx+7}" y="${PT-4}">approve →</text>
+    <line class="axis-line" x1="${PL}" y1="${H-PB}" x2="${W-PR}" y2="${H-PB}"/>
+    ${[0,.25,.5,.75,1].map(f => {
+      const v = m.lo + f*(m.hi-m.lo);
+      return `<text class="tick-x" x="${PL+f*(W-PL-PR)}" y="${H-PB+17}">${Math.round(v)}</text>`;
+    }).join("")}
+    <text class="axis-title" x="${(PL+W-PR)/2}" y="${H-6}">score</text>
+    <line class="crosshair" id="dist7-cross" x1="0" y1="${PT-14}" x2="0" y2="${H-PB}"
+      style="display:none"/>
+    <rect class="hitbox" id="dist7-hit" x="${PL}" y="${PT-14}"
+      width="${W-PL-PR}" height="${H-PB-PT+14}" tabindex="0"
+      aria-label="Hover or use arrow keys to read the distribution at each score"/>
+  </svg>`;
+
+  const rows = m.cg.map((c,i) => {
+    const a = Math.round(m.lo + i*m.step), z = Math.round(m.lo + (i+1)*m.step);
+    return `<tr><td class="mono">${a}–${z}</td><td class="num">${c}</td>
+      <td class="num">${m.cb[i]}</td>
+      <td class="num">${c+m.cb[i] ? pct(m.cb[i]/(c+m.cb[i])) : "—"}</td></tr>`;
+  }).join("");
+
+  figure("dist7", {
+    legend: keyLine("series-1","good (repaid)") + keyLine("series-2","bad (defaulted)")
+      + `<span class="key"><i class="dash"></i>policy cutoff</span>`,
+    svg,
+    table: `<table><thead><tr><th>Score band</th><th class="num">good</th>
+      <th class="num">bad</th><th class="num">bad rate</th></tr></thead>
+      <tbody>${rows}</tbody></table>`,
+  });
+
+  const svgEl = document.getElementById("dist7-svg");
+  const cross = document.getElementById("dist7-cross");
+  const hit = document.getElementById("dist7-hit");
+  let idx = Math.floor(m.nb/2);
+  const render = (i, speak) => {
+    idx = Math.max(0, Math.min(m.nb-1, i));
+    const a = Math.round(m.lo + idx*m.step), z = Math.round(m.lo + (idx+1)*m.step);
+    cross.style.display = "";
+    cross.setAttribute("x1", x(idx)); cross.setAttribute("x2", x(idx));
+    const [tx, ty] = tipXY(svgEl, x(idx), Math.min(y(m.dg[idx]), y(m.db[idx])));
+    showTip("dist7", tx, ty, `score ${a}–${z}`, [
+      {color:"series-1", name:"good", value:`${m.cg[idx]} · ${pct(m.dg[idx],1)}`},
+      {color:"series-2", name:"bad", value:`${m.cb[idx]} · ${pct(m.db[idx],1)}`},
+    ]);
+    if(speak) srSay("dist7", `score ${a} to ${z}: ${m.cg[idx]} good, `
+      + `${m.cb[idx]} bad`);
+  };
+  const fromEvent = e => {
+    const r = svgEl.getBoundingClientRect();
+    const sx = (e.clientX - r.left) / r.width * W;
+    render(Math.round((sx - PL) / (W - PL - PR) * m.nb - 0.5));
+  };
+  hit.addEventListener("pointermove", fromEvent);
+  hit.addEventListener("pointerleave", () => {
+    cross.style.display = "none"; hideTip("dist7");
+  });
+  hit.addEventListener("focus", () => render(idx, true));
+  hit.addEventListener("blur", () => {
+    cross.style.display = "none"; hideTip("dist7");
+  });
+  hit.addEventListener("keydown", e => {
+    if(e.key === "ArrowRight"){ render(idx+1, true); e.preventDefault(); }
+    if(e.key === "ArrowLeft"){ render(idx-1, true); e.preventDefault(); }
+  });
+  // Good draws first, bad follows it — the gap between them is the point of
+  // the chart, and watching the second curve fall away from the first says
+  // that better than showing both already finished.
+  onReveal("s7", () => drawIn("dist7", 900));
+}
+
+/* Grouped columns: 4px rounded cap, square at the baseline, a 2px surface
+   gap between the pair — no stroke drawn around either bar. */
+function drawCalibration(){
+  const c = D.calibration;
+  const W = 760, H = 250, PL = 46, PR = 18, PT = 18, PB = 56;
+  const rawMax = Math.max(...c.map(r => Math.max(r.actual_bad_rate,
+    r.predicted_bad_rate)));
+  const ticks = niceTicks(rawMax * 1.1, 4);
+  const max = ticks[ticks.length - 1];
+  const band = (W - PL - PR) / c.length;
+  const bw = Math.min(20, (band - 6) / 2 - 1);       // <=24px, gap included
+  const y = v => H - PB - (v/max) * (H - PT - PB);
+  const col = (bx, v, cls, key, label, i) => {
+    const h = Math.max(H - PB - y(v), 0.6);
+    const r = Math.min(4, h);
+    return `<path class="bar-mark ${cls}" data-i="${i}" data-k="${key}"
+      d="M${bx},${H-PB} V${y(v)+r} q0,-${r} ${r},-${r} H${bx+bw-r}
+         q${r},0 ${r},${r} V${H-PB} Z"><title>${esc(label)}</title></path>`;
+  };
+  const svg = `<svg viewBox="0 0 ${W} ${H}" id="cal7-svg" role="img"
+    aria-label="Actual against predicted bad rate by score band on the holdout">
+    ${ticks.map(v => `<line class="grid-line" x1="${PL}" y1="${y(v)}"
+      x2="${W-PR}" y2="${y(v)}"/>
+      <text class="tick" x="${PL-8}" y="${y(v)+4}" text-anchor="end">${(v*100).toFixed(0)}%</text>`
+      ).join("")}
+    ${c.map((r,i) => {
+      const bx = PL + i*band + (band - (bw*2 + 2))/2;
+      const lab = `${r.band}: actual ${pct(r.actual_bad_rate)}, predicted ${pct(r.predicted_bad_rate)}`;
+      return col(bx, r.actual_bad_rate, "s2-fill", "a", lab, i)
+           + col(bx + bw + 2, r.predicted_bad_rate, "s1-fill", "p", lab, i)
+           + `<rect class="hitbox" data-i="${i}" x="${PL+i*band}" y="${PT}"
+                width="${band}" height="${H-PB-PT}" tabindex="0"
+                aria-label="${esc(lab)}"/>`;
+    }).join("")}
+    ${c.map((r,i) => `<text class="tick-x" x="${PL + i*band + band/2}" y="${H-PB+16}"
+      transform="rotate(-34 ${PL + i*band + band/2} ${H-PB+16})">${r.band}</text>`).join("")}
+    <line class="axis-line" x1="${PL}" y1="${H-PB}" x2="${W-PR}" y2="${H-PB}"/>
+    <text class="axis-title" x="${(PL+W-PR)/2}" y="${H-4}">score band, low to high</text>
+  </svg>`;
+
+  figure("cal7", {
+    legend: keyRect("series-2","actual bad rate") + keyRect("series-1","predicted by the score"),
+    svg,
+    table: `<table><thead><tr><th>Score band</th><th class="num">n</th>
+      <th class="num">actual</th><th class="num">predicted</th>
+      <th class="num">gap</th></tr></thead><tbody>`
+      + c.map(r => `<tr><td class="mono">${esc(r.band)}</td>
+        <td class="num">${r.count}</td>
+        <td class="num">${pct(r.actual_bad_rate)}</td>
+        <td class="num">${pct(r.predicted_bad_rate)}</td>
+        <td class="num">${(r.actual_bad_rate-r.predicted_bad_rate>=0?"+":"")
+          + pct(r.actual_bad_rate - r.predicted_bad_rate)}</td></tr>`).join("")
+      + `</tbody></table>`,
+  });
+
+  const svgEl = document.getElementById("cal7-svg");
+  const marks = [...svgEl.querySelectorAll(".bar-mark")];
+  const focus = i => {
+    marks.forEach(mk => mk.classList.toggle("dim", +mk.dataset.i !== i));
+    const r = c[i];
+    const bx = PL + i*band + band/2;
+    const [tx, ty] = tipXY(svgEl, bx,
+      Math.min(y(r.actual_bad_rate), y(r.predicted_bad_rate)));
+    showTip("cal7", tx, ty, `score band ${r.band}  ·  n=${r.count}`, [
+      {color:"series-2", name:"actual", value:pct(r.actual_bad_rate)},
+      {color:"series-1", name:"predicted", value:pct(r.predicted_bad_rate)},
+    ]);
+  };
+  const clear = () => {
+    marks.forEach(mk => mk.classList.remove("dim")); hideTip("cal7");
+  };
+  svgEl.querySelectorAll(".hitbox").forEach(h => {
+    h.addEventListener("pointerenter", () => focus(+h.dataset.i));
+    h.addEventListener("focus", () => focus(+h.dataset.i));
+    h.addEventListener("pointerleave", clear);
+    h.addEventListener("blur", clear);
+  });
+  // Left to right, so the columns arrive in the order the bands are read.
+  onReveal("s7", () => playIn(marks, 22));
+}
+
+/* ---------------- step 8 ---------------- */
+/* The holdout scores travel with the payload, so approval rate, bad rate and
+   cost are recomputed exactly at whatever cutoff the reader picks — no
+   interpolation between precomputed rows. */
+function metricsAt(cut){
+  const g = D.score_distribution.goods, b = D.score_distribution.bads;
+  const n = g.length + b.length;
+  const goodsIn = g.filter(v => v >= cut).length;
+  const badsIn = b.filter(v => v >= cut).length;
+  const approved = goodsIn + badsIn;
+  const cost = D.meta.cost_false_good * badsIn
+             + D.meta.cost_false_bad * (g.length - goodsIn);
+  return {cutoff: cut, approval_rate: approved / n,
+          bad_rate_approved: approved ? badsIn / approved : 0,
+          bads_accepted: badsIn, goods_rejected: g.length - goodsIn,
+          cost_per_applicant: cost / n};
+}
+function step8(){
+  const all = D.score_distribution.goods.concat(D.score_distribution.bads);
+  const sl = document.getElementById("cut8");
+  sl.min = Math.floor(Math.min(...all)) - 1;
+  sl.max = Math.ceil(Math.max(...all)) + 1;
+  sl.step = 1;
+  sl.value = D.best_cutoff.cutoff;
+  CUT = D.best_cutoff.cutoff;
+  drawCost();
+  sl.addEventListener("input", () => { CUT = +sl.value; updateCut(); });
+  updateCut();
+  const b = D.best_cutoff, o = D.oracle_cutoff_test,
+        t = D.cutoff_chosen_on_train;
+  document.getElementById("honest8").innerHTML = `<b>The cutoff is a decision,
+    so it has to be made blind</b>
+    The line was placed at <b>${t.cutoff}</b> using the training book alone, then
+    billed against the holdout: <b>${num(b.cost_per_applicant,3)}</b> cost units
+    per applicant, against ${num(D.cost_baselines[0].cost_per_applicant,3)} for
+    approving everyone and ${num(D.cost_baselines[1].cost_per_applicant,3)} for
+    lending to nobody. An oracle allowed to tune the cutoff on the holdout itself
+    would have reported ${num(o.cost_per_applicant,3)} at ${o.cutoff} — about
+    ${pct((b.cost_per_applicant-o.cost_per_applicant)/o.cost_per_applicant,0)}
+    better, and entirely fictional. That gap is the size of the temptation.`;
+}
+function updateCut(){
+  const row = metricsAt(CUT);
+  tiles("t8", [
+    ["Cutoff", row.cutoff, "approve at or above", "accent"],
+    ["Approval rate", pct(row.approval_rate),
+      `${row.goods_rejected} good files turned away`],
+    ["Bad rate approved", pct(row.bad_rate_approved),
+      `${row.bads_accepted} defaults let through`, "risk"],
+    ["Cost per applicant", num(row.cost_per_applicant,3),
+      row.cutoff === D.best_cutoff.cutoff ? "the policy cutoff"
+        : `policy cutoff is ${D.best_cutoff.cutoff}`],
+  ]);
+  moveCutMarks();
+  if(document.getElementById("tb6").innerHTML) scoreApplicant();
+}
+/* The slider moves one line in each chart — the figures are not rebuilt, so
+   an open table view and the reader's scroll position both survive a drag. */
+function moveCutMarks(){
+  const cut = CUT === null ? D.best_cutoff.cutoff : CUT;
+  const d = window.__dist, c = window.__cost;
+  if(d){
+    const cx = d.PL + ((cut - d.lo)/(d.hi - d.lo)) * (d.W - d.PL - d.PR);
+    const on = cx > d.PL && cx < d.W - d.PR;
+    ["dist7-cutline","dist7-cutlabel","dist7-declabel"].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.style.display = on ? "" : "none";
+    });
+    if(on){
+      const l = document.getElementById("dist7-cutline");
+      l.setAttribute("x1", cx); l.setAttribute("x2", cx);
+      const t = document.getElementById("dist7-cutlabel");
+      t.setAttribute("x", cx - 7); t.textContent = "cutoff " + cut;
+      document.getElementById("dist7-declabel").setAttribute("x", cx + 7);
+    }
+  }
+  if(c){
+    const m = metricsAt(cut);
+    const cx = c.x(cut), cy = c.y(m.cost_per_applicant);
+    const line = document.getElementById("cost8-cutline");
+    line.setAttribute("x1", cx); line.setAttribute("x2", cx);
+    const dot = document.getElementById("cost8-dot");
+    dot.setAttribute("cx", cx); dot.setAttribute("cy", cy);
+    const lab = document.getElementById("cost8-dotlabel");
+    lab.setAttribute("x", cx + 9);
+    lab.setAttribute("y", cy - 9);
+    lab.setAttribute("text-anchor", cx > c.W * 0.75 ? "end" : "start");
+    if(cx > c.W * 0.75) lab.setAttribute("x", cx - 9);
+    lab.textContent = num(m.cost_per_applicant, 3);
+  }
+}
+/* One series, so no legend box for it — the reference lines are what the
+   legend explains. Cost is recomputed exactly from the holdout scores. */
+function drawCost(){
+  const sl = document.getElementById("cut8");
+  const lo = +sl.min, hi = +sl.max;
+  const pts = [];
+  for(let v = lo; v <= hi; v += 1) pts.push(metricsAt(v));
+  const W = 760, H = 264, PL = 50, PR = 108, PT = 22, PB = 46;
+  const costTicks = niceTicks(Math.max(...pts.map(r => r.cost_per_applicant),
+    ...D.cost_baselines.map(b => b.cost_per_applicant)) * 1.06, 4);
+  const max = costTicks[costTicks.length - 1];
+  const x = v => PL + ((v-lo)/(hi-lo)) * (W - PL - PR);
+  const y = v => H - PB - (v/max) * (H - PT - PB);
+  window.__cost = {x, y, W, PL, PR, lo, hi};
+  const path = "M" + pts.map(r =>
+    `${x(r.cutoff).toFixed(1)},${y(r.cost_per_applicant).toFixed(1)}`).join("L");
+  const best = pts.reduce((a,b) => b.cost_per_applicant < a.cost_per_applicant ? b : a);
+
+  const svg = `<svg viewBox="0 0 ${W} ${H}" id="cost8-svg" role="img"
+    aria-label="Expected cost per applicant against the cutoff score, with the approve-everyone and approve-nobody baselines">
+    ${costTicks.map(v => `<line class="grid-line" x1="${PL}" y1="${y(v)}"
+      x2="${W-PR}" y2="${y(v)}"/>
+      <text class="tick" x="${PL-8}" y="${y(v)+4}" text-anchor="end">${num(v,2)}</text>`).join("")}
+    ${D.cost_baselines.map(b => `
+      <line class="ref-line" x1="${PL}" y1="${y(b.cost_per_applicant)}"
+        x2="${W-PR}" y2="${y(b.cost_per_applicant)}"/>
+      <text class="ref-label" x="${W-PR+7}" y="${y(b.cost_per_applicant)+4}">
+        ${esc(b.strategy)}</text>`).join("")}
+    <path class="s1-stroke" d="${path}"/>
+    <line class="cut-line" id="cost8-cutline" x1="${x(CUT)}" y1="${PT-12}"
+      x2="${x(CUT)}" y2="${H-PB}"/>
+    <circle class="s1-fill mark-ring" id="cost8-dot" cx="${x(CUT)}" cy="${y(0)}" r="5"/>
+    <text class="direct-label" id="cost8-dotlabel" x="0" y="0"></text>
+    <circle cx="${x(best.cutoff)}" cy="${y(best.cost_per_applicant)}" r="4"
+      fill="none" stroke="var(--neutral-mark)" stroke-width="1.5"/>
+    ${Math.abs(x(best.cutoff) - x(CUT)) > 74 ? `<text class="ref-label"
+      x="${x(best.cutoff)}" y="${y(best.cost_per_applicant)+21}"
+      text-anchor="middle">cheapest: ${best.cutoff}</text>` : ""}
+    <line class="axis-line" x1="${PL}" y1="${H-PB}" x2="${W-PR}" y2="${H-PB}"/>
+    ${[0,.25,.5,.75,1].map(f => {
+      const v = lo + f*(hi-lo);
+      return `<text class="tick-x" x="${x(v)}" y="${H-PB+17}">${Math.round(v)}</text>`;
+    }).join("")}
+    <text class="axis-title" x="${(PL+W-PR)/2}" y="${H-6}">cutoff score</text>
+    <line class="crosshair" id="cost8-cross" x1="0" y1="${PT-12}" x2="0" y2="${H-PB}"
+      style="display:none"/>
+    <rect class="hitbox" id="cost8-hit" x="${PL}" y="${PT-12}" width="${W-PL-PR}"
+      height="${H-PB-PT+12}" tabindex="0"
+      aria-label="Hover or use arrow keys to read the cost at each cutoff"/>
+  </svg>`;
+
+  const sample = pts.filter((r,i) => i % 10 === 0);
+  figure("cost8", {
+    legend: keyLine("series-1","cost of the scorecard policy")
+      + `<span class="key"><i class="dash"></i>fixed baselines</span>`
+      + `<span class="key"><i class="dash" style="border-top-color:var(--ink)"></i>chosen cutoff</span>`,
+    svg,
+    table: `<table><thead><tr><th>Cutoff</th><th class="num">approval</th>
+      <th class="num">bad rate approved</th><th class="num">cost / applicant</th>
+      </tr></thead><tbody>`
+      + sample.map(r => `<tr${r.cutoff===D.best_cutoff.cutoff?' class="total"':''}>
+        <td class="mono">${r.cutoff}</td>
+        <td class="num">${pct(r.approval_rate)}</td>
+        <td class="num">${pct(r.bad_rate_approved)}</td>
+        <td class="num">${num(r.cost_per_applicant,3)}</td></tr>`).join("")
+      + `</tbody></table>
+      <p class="small">Sampled every 10 points; the slider reads every score.</p>`,
+  });
+
+  const svgEl = document.getElementById("cost8-svg");
+  const cross = document.getElementById("cost8-cross");
+  const hit = document.getElementById("cost8-hit");
+  let cur = CUT;
+  const render = (v, speak) => {
+    cur = Math.max(lo, Math.min(hi, Math.round(v)));
+    const m = metricsAt(cur);
+    cross.style.display = "";
+    cross.setAttribute("x1", x(cur)); cross.setAttribute("x2", x(cur));
+    const [tx, ty] = tipXY(svgEl, x(cur), y(m.cost_per_applicant));
+    showTip("cost8", tx, ty, `cutoff ${cur}`, [
+      {color:"series-1", name:"cost / applicant", value:num(m.cost_per_applicant,3)},
+      {name:"approved", value:pct(m.approval_rate)},
+      {name:"bad rate approved", value:pct(m.bad_rate_approved)},
+    ]);
+    if(speak) srSay("cost8", `cutoff ${cur}: cost `
+      + `${num(m.cost_per_applicant,3)} per applicant, `
+      + `${pct(m.approval_rate)} approved`);
+  };
+  hit.addEventListener("pointermove", e => {
+    const r = svgEl.getBoundingClientRect();
+    render(lo + ((e.clientX - r.left)/r.width*W - PL)/(W-PL-PR)*(hi-lo));
+  });
+  const off = () => { cross.style.display = "none"; hideTip("cost8"); };
+  hit.addEventListener("pointerleave", off);
+  hit.addEventListener("blur", off);
+  hit.addEventListener("focus", () => render(cur, true));
+  hit.addEventListener("keydown", e => {
+    if(e.key === "ArrowRight"){ render(cur+1, true); e.preventDefault(); }
+    if(e.key === "ArrowLeft"){ render(cur-1, true); e.preventDefault(); }
+  });
+  moveCutMarks();
+  onReveal("s8", () => drawIn("cost8", 1000));
+}
+
+/* ---------------- step 9 ---------------- */
+function step9(){
+  const out = Object.entries(D.fairness).map(([name, block]) => {
+    const air = block.adverse_impact_ratio;
+    return `<h4 style="margin:26px 0 4px;font-size:15px">By ${esc(name.replace("_"," "))}</h4>
+    <div class="tbl-wrap"><table><thead><tr><th>Group</th><th class="num">n</th>
+      <th class="num">actual bad rate</th><th class="num">approval rate</th>
+      <th class="num">mean score</th><th class="num">AUC within group</th>
+      </tr></thead><tbody>`
+    + block.rows.map(r => `<tr><td>${esc(r.group)}</td><td class="num">${r.n}</td>
+        <td class="num">${pct(r.actual_bad_rate)}</td>
+        <td class="num">${pct(r.approval_rate)}</td>
+        <td class="num">${num(r.mean_score,1)}</td>
+        <td class="num">${r.auc === null ? "—" : num(r.auc,3)}</td></tr>`).join("")
+    + `</tbody></table></div>`
+    + (air === null
+      ? `<p class="small">Only one group in the holdout clears the minimum size of
+         20, so no ratio can be computed — itself a finding: the model was fitted
+         on a book where this attribute is almost constant, and nothing here can
+         say how it behaves on the rare group.</p>`
+      : `<p class="small">Adverse impact ratio <b>${num(air,3)}</b> —
+         ${air >= 0.8 ? '<span class="tag ok">above the four-fifths threshold</span>'
+                      : '<span class="tag no">below the four-fifths threshold</span>'}.
+         Note the group with the lower approval rate also has the higher actual bad
+         rate, so the gap is not by itself evidence of a biased model — but a
+         lender would still have to document exactly this before deploying.</p>`);
+  }).join("");
+  document.getElementById("fair9").innerHTML = out;
+}
+
+/* ---------------- reveal + nav ---------------- */
+/* Runs whatever the steps queued for this section — chart entrances, bar
+   growth — exactly once, and only when the reader has arrived. */
+function fireHooks(id){
+  const q = ON_REVEAL[id];
+  if(!q) return;
+  delete ON_REVEAL[id];
+  q.forEach(fn => { try{ fn(); }catch(e){ /* motion is never load-bearing */ } });
+}
+/* The rail's position marker. It reads the active link's own geometry, so it
+   stays right if the labels ever change length or the rail is re-ordered. */
+function moveMarker(link){
+  const marker = document.querySelector("#rail .marker");
+  if(!marker || !link) return;
+  marker.style.height = link.offsetHeight + "px";
+  marker.style.transform = `translateY(${link.offsetTop}px)`;
+  marker.classList.add("on");
+}
+/* Which step the reader is in. Independent of the entrance animation: it is
+   how the rail stays truthful, not part of the show. */
+function spyRail(secs){
+  const spy = new IntersectionObserver(es => es.forEach(e => {
+    if(e.isIntersecting){
+      document.querySelectorAll("#rail a").forEach(a => {
+        const on = a.dataset.target === e.target.id;
+        a.classList.toggle("active", on);
+        if(on) moveMarker(a);
+      });
+    }
+  }), {rootMargin: "-45% 0px -50% 0px"});
+  secs.forEach(s => spy.observe(s));
+}
+function boot(){
+  const hero = document.querySelector(".hero");
+  const secs = [...document.querySelectorAll("section.step")];
+  // The stagger index is the child's own position, so a step assembles in
+  // reading order without every element needing to know its own delay.
+  [hero, ...secs].forEach(host => {
+    if(!host) return;
+    [...host.children].forEach((c,i) => c.style.setProperty("--i", i));
+  });
+
+  // Reduced motion turns off the entrance, not the page. The rail still has
+  // to say where the reader is — that is orientation, not decoration.
+  if(!("IntersectionObserver" in window) || REDUCED){
+    if(hero) hero.classList.add("in");
+    secs.forEach(s => { s.classList.add("in"); fireHooks(s.id); });
+    const first = document.querySelector("#rail a");
+    if(first){ first.classList.add("active"); moveMarker(first); }
+    if("IntersectionObserver" in window) spyRail(secs);
+    return;
+  }
+  document.documentElement.classList.add("js-reveal");
+  const reveal = s => {
+    if(s.classList.contains("in")) return;
+    s.classList.add("in");
+    // After the children have finished arriving — animating a chart that is
+    // still fading in reads as one muddled movement instead of two clear ones.
+    setTimeout(() => fireHooks(s.id), 260);
+  };
+  // The hero is not scrolled to, it is landed on: it comes in as soon as the
+  // loader is out of the way.
+  if(hero) requestAnimationFrame(() => hero.classList.add("in"));
+  // anything already at or above the fold is revealed immediately, so a
+  // deep link never lands on blank space waiting for a scroll
+  secs.forEach(s => {
+    if(s.getBoundingClientRect().top < window.innerHeight) reveal(s);
+  });
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if(e.isIntersecting) reveal(e.target);
+  }), {threshold: .12});
+  secs.forEach(s => io.observe(s));
+  // Safety net: a tab that loads hidden reports a zero-height viewport, so
+  // the first pass reveals nothing and the observer has nothing to fire on.
+  // Re-check on scroll, resize and visibility — cheap, and it means the page
+  // is never left blank waiting for an event that already happened.
+  let queued = false;
+  const sweep = () => {
+    if(queued) return;
+    queued = true;
+    requestAnimationFrame(() => {
+      queued = false;
+      if(hero) hero.classList.add("in");
+      secs.forEach(s => {
+        if(!s.classList.contains("in") &&
+           s.getBoundingClientRect().top < window.innerHeight) reveal(s);
+      });
+    });
+  };
+  addEventListener("scroll", sweep, {passive: true});
+  addEventListener("resize", sweep, {passive: true});
+  document.addEventListener("visibilitychange", sweep);
+
+  spyRail(secs);
+  // The marker is placed from layout, which the web fonts can still change
+  // under it. Re-place it once they have settled.
+  addEventListener("resize", () => moveMarker(document.querySelector("#rail a.active")),
+    {passive: true});
+  if(document.fonts && document.fonts.ready){
+    document.fonts.ready.then(() =>
+      moveMarker(document.querySelector("#rail a.active")));
+  }
+}
+
+buildRail();
+/* The page runs in two places. Locally there is a Python process that
+   rebuilds the model on request, which is the point of the local server.
+   On a static host there is no process at all — only the JSON the CLI
+   already wrote. Ask the live one first, fall back to the file. */
+fetch("api/analyze")
+  .then(r => r.ok ? r.json() : Promise.reject(new Error("no live model")))
+  .catch(() => fetch("scorecard_results.json").then(r => {
+    if(!r.ok) throw new Error("HTTP " + r.status + " fetching the results file");
+    return r.json();
+  }))
+  .then(d => {
+  if(d.error) throw new Error(d.error);
+  D = d;
+  step1(); step2(); step3(); step4(); step5(); step6(); step7(); step8(); step9();
+  const l = document.getElementById("loader");
+  l.style.opacity = 0;
+  setTimeout(() => l.remove(), 500);
+  boot();
+  // The sections are empty until the payload lands, so the browser's own
+  // jump to #hash happens against a page that isn't there yet. Redo it.
+  // The fragment is whatever was in the link someone clicked. Handed
+  // straight to querySelector, anything that is not a valid selector throws
+  // — and the throw lands in the catch below, which paints a build-failed
+  // message over a page that built perfectly well.
+  if(location.hash){
+    try{
+      const t = document.querySelector(location.hash);
+      if(t) t.scrollIntoView();
+    }catch(e){ /* not a selector; there is nothing to scroll to */ }
+  }
+}).catch(err => {
+  // Opening index.html straight off disk is the obvious thing to try, and
+  // it cannot work: the page asks a local Python process to build the model,
+  // and under file:// there is nothing listening. Say so, with the command.
+  const offline = location.protocol === "file:";
+  const box = document.getElementById("loadmsg");
+  box.classList.add("failed");
+  box.innerHTML = offline
+    ? `<b>This page needs its server running.</b>
+       The scorecard is built in Python on request &mdash; opening the HTML
+       from disk leaves it with nothing to ask. From the project folder run
+       <code>python3 server.py</code>&#44; then open <code
+       >http://localhost:8000</code>`
+    : `<b>Could not build the scorecard.</b>
+       ${esc(err.message)} &mdash; check that <code
+       >python3 server.py</code> is still running in the project folder`;
+});
+</script>
+</body>
+</html>

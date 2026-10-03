@@ -35,7 +35,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         path = self.path.split("?")[0]
         if path in ("/", "/index.html"):
-            with open(os.path.join(HERE, "index.html"), "rb") as fh:
+            with open(os.path.join(HERE, "interactive.html"), "rb") as fh:
                 self._send(200, fh.read(), "text/html; charset=utf-8")
         elif path == "/api/analyze":
             try:

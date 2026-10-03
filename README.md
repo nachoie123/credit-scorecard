@@ -7,7 +7,7 @@ to prove the result isn't real.
 
 There is an animated web explainer that walks through the whole build, ending in
 a form where you score an applicant and watch the points add up:
-**[nachosanbenito.me/credit-scorecard](https://nachosanbenito.me/credit-scorecard/)**.
+**[nachosanbenito.com/credit-scorecard/interactive.html](https://nachosanbenito.com/credit-scorecard/interactive.html)** (the landing with a 36 s video is at [nachosanbenito.com/credit-scorecard](https://nachosanbenito.com/credit-scorecard/)).
 
 ![scorecard](scorecard.png)
 
@@ -133,7 +133,7 @@ The server builds the scorecard once (~10s), caches it, and hands the page a
 single JSON payload; everything interactive is computed in the browser from
 that payload, so no user input ever reaches the model code.
 
-**Opening `index.html` straight off disk does not work** — a `file://` page is
+**Opening `interactive.html` straight off disk does not work** — a `file://` page is
 not allowed to fetch the payload beside it. Serve the folder over HTTP instead;
 any static server will do, because the page falls back to the committed
 `scorecard_results.json` when no live model is listening:
