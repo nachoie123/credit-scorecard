@@ -7,7 +7,7 @@ to prove the result isn't real.
 
 There is an animated web explainer that walks through the whole build, ending in
 a form where you score an applicant and watch the points add up:
-**[nachosanbenito.com/credit-scorecard/interactive.html](https://nachosanbenito.com/credit-scorecard/interactive.html)** (the landing with a 36 s video is at [nachosanbenito.com/credit-scorecard](https://nachosanbenito.com/credit-scorecard/)).
+**[nachosanbenito.com/credit-scorecard/interactive.html](https://nachosanbenito.com/credit-scorecard/interactive.html)** (the landing with a narrated video is at [nachosanbenito.com/credit-scorecard](https://nachosanbenito.com/credit-scorecard/)).
 
 ![scorecard](scorecard.png)
 
@@ -71,10 +71,10 @@ line.
 | **Scorecard, cutoff picked on train (539)** | **0.530** |
 | Approve everyone | 1.500 |
 | Approve nobody | 0.700 |
-| *Oracle tuning the cutoff on the holdout* | *0.483* |
+| *Oracle tuning the cutoff on the holdout* | *0.503* |
 
 That last row is the point of the exercise. Choosing the cost-minimising cutoff
-on the same data you report the cost on flatters the result by ~10% and is the
+on the same data you report the cost on flatters the result by ~5% and is the
 easiest way to fool yourself in this whole pipeline — so the cutoff is chosen on
 the training book and simply paid for on the holdout.
 
